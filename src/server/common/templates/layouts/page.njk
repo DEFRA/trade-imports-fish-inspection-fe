@@ -3,6 +3,7 @@
 {# Import GOVUK components globally #}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 
 {# Import custom components globally #}
 {% from "heading/macro.njk" import appHeading %}
@@ -50,6 +51,8 @@
   }) }}
 
   {{ govukServiceNavigation({
+    serviceName: "Fish import inspection",
+    serviceUrl: "/",
     navigation: navigation
   }) }}
 {% endblock %}
@@ -59,6 +62,12 @@
 {% endblock %}
 
 {% block beforeContent %}
+  {{ govukPhaseBanner({
+    tag: {
+      text: "Beta"
+    },
+    text: "This is a new service. We're still working on ways to improve it."
+  }) }}
   {% if breadcrumbs.length > 1 %}
     {{ govukBreadcrumbs({
       items: breadcrumbs

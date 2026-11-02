@@ -44,7 +44,7 @@ export const config = convict({
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
-    default: 'trade-imports-fish-inspection-fe'
+    default: 'Fish import inspection'
   },
   root: {
     doc: 'Project root',

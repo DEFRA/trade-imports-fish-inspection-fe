@@ -1,7 +1,7 @@
 export function buildNavigation(request) {
   return [
     {
-      text: 'Home',
+      text: 'Dashboard',
       href: '/',
       current: request?.path === '/'
     },
