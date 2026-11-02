@@ -63,7 +63,7 @@ describe('context and cache', () => {
           navigation: [
             {
               current: true,
-              text: 'Home',
+              text: 'Dashboard',
               href: '/'
             },
             {
@@ -72,7 +72,7 @@ describe('context and cache', () => {
               href: '/about'
             }
           ],
-          serviceName: 'trade-imports-fish-inspection-fe',
+          serviceName: 'Fish import inspection',
           serviceUrl: '/'
         })
       })
@@ -152,7 +152,7 @@ describe('context and cache', () => {
           navigation: [
             {
               current: true,
-              text: 'Home',
+              text: 'Dashboard',
               href: '/'
             },
             {
@@ -161,7 +161,7 @@ describe('context and cache', () => {
               href: '/about'
             }
           ],
-          serviceName: 'trade-imports-fish-inspection-fe',
+          serviceName: 'Fish import inspection',
           serviceUrl: '/'
         })
       })

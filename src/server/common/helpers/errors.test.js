@@ -23,7 +23,7 @@ describe('#errors', () => {
     })
 
     expect(result).toEqual(
-      expect.stringContaining('Page not found | trade-imports-fish-inspection-fe')
+      expect.stringContaining('Page not found | Fish import inspection')
     )
     expect(statusCode).toBe(statusCodes.notFound)
   })

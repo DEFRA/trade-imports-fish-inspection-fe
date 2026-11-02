@@ -11,7 +11,7 @@ describe('#buildNavigation', () => {
     ).toEqual([
       {
         current: false,
-        text: 'Home',
+        text: 'Dashboard',
         href: '/'
       },
       {
@@ -26,7 +26,7 @@ describe('#buildNavigation', () => {
     expect(buildNavigation(mockRequest({ path: '/' }))).toEqual([
       {
         current: true,
-        text: 'Home',
+        text: 'Dashboard',
         href: '/'
       },
       {

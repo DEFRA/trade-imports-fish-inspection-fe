@@ -5,7 +5,7 @@
 export const homeController = {
   handler(_request, h) {
     return h.view('home/index', {
-      pageTitle: 'Home',
+      pageTitle: 'Dashboard',
       heading: 'Import notifications dashboard'
     })
   }
