@@ -57,7 +57,7 @@ to how services might have a database (or MongoDB). All frontend services are gi
 matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
 
 If your service does not require a session cache to be shared between instances or if you don't require Redis, you can
-disable setting `SESSION_CACHE_ENGINE=false` or changing the default value in `src/config/index.js`.
+set `SESSION_CACHE_ENGINE=memory` (not suitable for production) or change the default in `src/config/config.js`.
 
 ## Proxy
 
@@ -86,7 +86,7 @@ npm install
 Install git hooks (optional)
 
 ```bash
-npm run git:hooks
+npm run setup:husky
 ```
 
 ### Development
