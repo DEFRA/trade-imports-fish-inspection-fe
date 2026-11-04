@@ -1,20 +1,27 @@
-# Routes
+---
+layout: page
+title: Routes
+description: HTTP routes, route modules and static asset serving.
+order: 2
+---
 
 This document lists the HTTP routes the service exposes and how route modules are organised.
 
 ## Route table
 
-| Method | Path                | Auth | Handler                                                                             | Response                                                 |
-| ------ | ------------------- | ---- | ----------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| GET    | `/`                 | none | [home controller](../src/server/routes/home/controller.js)                          | `home/index` view (Dashboard)                            |
-| GET    | `/about`            | none | [about controller](../src/server/routes/about/controller.js)                        | `about/index` view                                       |
-| GET    | `/health`           | none | [health controller](../src/server/routes/health/controller.js)                      | JSON `{ "message": "success" }`, 200                     |
-| GET    | `/cookies`          | none | [cookies controller](../src/server/routes/cookies/controller.js)                    | `cookies/policy` view                                    |
-| POST   | `/cookies`          | none | [cookies controller](../src/server/routes/cookies/controller.js)                    | JSON or redirect, see [cookie consent](cookie-consent.md) |
-| GET    | `/favicon.ico`      | none | [serve-static-files.js](../src/server/plugins/serve-static-files.js)                | 204 No Content (production and test only)                |
-| GET    | `/public/{param*}`  | none | [serve-static-files.js](../src/server/plugins/serve-static-files.js) or Vite middleware | Built client assets, see [client assets](client-assets.md) |
+| Method | Path               | Auth | Handler                                                                                                                                                  | Response                                                  |
+| ------ | ------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Method | Path               | Auth | Handler                                                                                                                                                  | Response                                                  |
+| ---    | ---                | ---  | ---                                                                                                                                                      | ---                                                       |
+| GET    | `/`                | none | [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/home/controller.js)                              | `home/index` view (Dashboard)                             |
+| GET    | `/about`           | none | [about controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/about/controller.js)                            | `about/index` view                                        |
+| GET    | `/health`          | none | [health controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/health/controller.js)                          | JSON `{ "message": "success" }`, 200                      |
+| GET    | `/cookies`         | none | [cookies controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/cookies/controller.js)                        | `cookies/policy` view                                     |
+| POST   | `/cookies`         | none | [cookies controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/cookies/controller.js)                        | JSON or redirect, see [cookie consent](/cookie-consent/)  |
+| GET    | `/favicon.ico`     | none | [serve-static-files.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/serve-static-files.js)                    | 204 No Content (production and test only)                 |
+| GET    | `/public/{param*}` | none | [serve-static-files.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/serve-static-files.js) or Vite middleware | Built client assets, see [client assets](/client-assets/) |
 
-Route handlers and the `/cookies` routes are wired in [router.js](../src/server/plugins/router.js).
+Route handlers and the `/cookies` routes are wired in [router.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/router.js).
 
 ## Route modules
 
@@ -29,10 +36,10 @@ The `home` and `about` routes are example pages from the CDP template. The `heal
 
 ## Static assets
 
-- Outside production and test, [router.js](../src/server/plugins/router.js) starts Vite in middleware mode and mounts it at `/public` through `@defra/hapi-connect`.
+- Outside production and test, [router.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/router.js) starts Vite in middleware mode and mounts it at `/public` through `@defra/hapi-connect`.
 - In production or test, `serveStaticFiles` serves `${assetPath}/{param*}` from `.public` with a cache lifetime of `staticCacheTimeout` (default one week).
 - The `/favicon.ico` route is registered only in the production or test branch.
 
 ## Request logging
 
-The request logger ignores `/public/*`, `/health`, and `/favicon.ico` (see [request-logger.js](../src/server/plugins/request-logger.js)).
+The request logger ignores `/public/*`, `/health`, and `/favicon.ico` (see [request-logger.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/request-logger.js)).
