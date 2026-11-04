@@ -1,10 +1,15 @@
-# Sessions and caching
+---
+layout: page
+title: Sessions and caching
+description: Server-side session storage, Catbox cache engines and the Redis client.
+order: 4
+---
 
 This document covers server-side session storage, the Catbox cache engines, and the Redis client.
 
 ## Session plugin
 
-[src/server/plugins/session-cache.js](../src/server/plugins/session-cache.js) registers `@hapi/yar`:
+[src/server/plugins/session-cache.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/session-cache.js) registers `@hapi/yar`:
 
 - The session is stored in the Hapi cache named by `session.cache.name` (default `session`), with an expiry of `session.cache.ttl` (default four hours).
 - The session cookie is named `session.cache.name`. Its password, lifetime, and `Secure` flag come from `session.cookie.*`.
@@ -16,7 +21,7 @@ Yar's `maxCookieSize` is left at its default, so session data is not limited to 
 
 ## Cache engine selection
 
-[src/server/common/helpers/session-cache/cache-engine.js](../src/server/common/helpers/session-cache/cache-engine.js) picks the engine from `session.cache.engine`:
+[src/server/common/helpers/session-cache/cache-engine.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/helpers/session-cache/cache-engine.js) picks the engine from `session.cache.engine`:
 
 - `redis` returns a `CatboxRedis` engine using the client from `buildRedisClient()`.
 - Any other value returns `CatboxMemory`. When `NODE_ENV=production`, an error is logged because memory storage is for local development only.
@@ -25,7 +30,7 @@ The memory engine is not shared between instances and is lost on restart.
 
 ## Redis client
 
-[src/server/common/helpers/redis-client.js](../src/server/common/helpers/redis-client.js) builds the client from the `redis` config:
+[src/server/common/helpers/redis-client.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/helpers/redis-client.js) builds the client from the `redis` config:
 
 - Single-instance mode (`redis.useSingleInstanceCache` is `true`) uses `ioredis` `Redis`. Otherwise a `Cluster` client is used with the configured host.
 - Port is fixed at `6379` and database at `0`. These are not configurable.

@@ -1,6 +1,11 @@
-# Views and templates
+---
+layout: page
+title: Views and templates
+description: Nunjucks configuration, shared template context, layout and components.
+order: 7
+---
 
-Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in [src/config/nunjucks/nunjucks.js](../src/config/nunjucks/nunjucks.js).
+Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in [src/config/nunjucks/nunjucks.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/nunjucks.js).
 
 ## Engine setup
 
@@ -14,24 +19,24 @@ Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in
 
 ## Shared context
 
-[context.js](../src/config/nunjucks/context/context.js) adds these variables to every view:
+[context.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/context/context.js) adds these variables to every view:
 
 - `assetPath`: `${assetPath}/assets`
 - `serviceName`, `serviceUrl` (`/`), `cookieName`, `googleTagManagerKey`
 - `breadcrumbs` (empty by default)
-- `navigation`, built by [build-navigation.js](../src/config/nunjucks/context/build-navigation.js). It contains "Dashboard" (`/`) and "About" (`/about`), with `current` set from the request path.
+- `navigation`, built by [build-navigation.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/context/build-navigation.js). It contains "Dashboard" (`/`) and "About" (`/about`), with `current` set from the request path.
 - `getAssetPath(asset)`: in development returns `${assetPath}/${asset}`. In production it looks up the hashed file in the Vite manifest at `.public/.vite/manifest.json`.
 
-The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. See [cookie consent](cookie-consent.md).
+The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. See [cookie consent](/cookie-consent/).
 
 ## Globals and filters
 
-- Globals: [globals.js](../src/config/nunjucks/globals/globals.js) exports `govukRebrand` (`true`).
-- Filters: [filters.js](../src/config/nunjucks/filters/filters.js) exports `assign`, `formatDate` ([format-date.js](../src/config/nunjucks/filters/format-date.js)), and `formatCurrency` ([format-currency.js](../src/config/nunjucks/filters/format-currency.js)).
+- Globals: [globals.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/globals/globals.js) exports `govukRebrand` (`true`).
+- Filters: [filters.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/filters.js) exports `assign`, `formatDate` ([format-date.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/format-date.js)), and `formatCurrency` ([format-currency.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/format-currency.js)).
 
 ## Layout
 
-[page.njk](../src/server/common/templates/layouts/page.njk) extends `govuk/template.njk` and provides:
+[page.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/templates/layouts/page.njk) extends `govuk/template.njk` and provides:
 
 - A GOV.UK header and service navigation.
 - A Beta phase banner.
@@ -43,9 +48,9 @@ Page views set `pageTitle`, which feeds the `<title>` as `pageTitle | serviceNam
 
 ## Components
 
-- [heading/macro.njk](../src/server/common/components/heading/macro.njk) provides `appHeading`, which is imported into the layout. Styles are in `_heading.scss`.
-- Route views (for example [home/index.njk](../src/server/routes/home/index.njk)) extend the layout and render content in the `content` block.
+- [heading/macro.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/components/heading/macro.njk) provides `appHeading`, which is imported into the layout. Styles are in `_heading.scss`.
+- Route views (for example [home/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/home/index.njk)) extend the layout and render content in the `content` block.
 
 ## Error page
 
-[error/index.njk](../src/server/routes/error/index.njk) renders the message passed by the error handler in [errors.js](../src/server/common/helpers/errors.js). See [server startup](server-startup.md).
+[error/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/error/index.njk) renders the message passed by the error handler in [errors.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/helpers/errors.js). See [server startup](/server-startup/).

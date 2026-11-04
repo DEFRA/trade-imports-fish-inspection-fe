@@ -1,17 +1,22 @@
-# Security
+---
+layout: page
+title: Security
+description: HTTP security headers, CSP, CSRF protection and cookie security.
+order: 6
+---
 
 This document covers the HTTP security controls applied to every response and request.
 
 ## Security headers
 
-Set in `routes.security` in [server.js](../src/server/server.js):
+Set in `routes.security` in [server.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/server.js):
 
 - `Strict-Transport-Security`: max age one year, `includeSubDomains`, no `preload`.
 - `X-XSS-Protection` enabled, `X-Content-Type-Options: nosniff`, and `X-Frame-Options` enabled.
 
 ## Content Security Policy
 
-[content-security-policy.js](../src/server/plugins/content-security-policy.js) configures `blankie`:
+[content-security-policy.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/content-security-policy.js) configures `blankie`:
 
 - `defaultSrc`, `imgSrc`, `mediaSrc`, `fontSrc`, `styleSrc`, `manifestSrc`, and `formAction` are `'self'`, with `data:` where listed.
 - `scriptSrc` allows `'self'`, one inline script hash, and Google Tag Manager and Google Analytics hosts.
@@ -24,7 +29,7 @@ Changes to inline scripts or Google hosts require updating this policy.
 
 ## CSRF protection
 
-[csrf.js](../src/server/plugins/csrf.js) registers `@hapi/crumb`:
+[csrf.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/csrf.js) registers `@hapi/crumb`:
 
 - Crumb sets a cookie holding the token, and the token is available to templates as `crumb`.
 - Forms include the token as a hidden `crumb` field. The client-side consent script sends it in the JSON body.
@@ -39,8 +44,8 @@ Changes to inline scripts or Google hosts require updating this policy.
 
 ## Redirects
 
-Only same-site relative paths are accepted for the cookie form's `returnUrl`. See [cookie consent](cookie-consent.md).
+Only same-site relative paths are accepted for the cookie form's `returnUrl`. See [cookie consent](/cookie-consent/).
 
 ## Logging
 
-In production, the logger redacts `req.headers.authorization`, `req.headers.cookie`, and `res.headers` by default. See [configuration](configuration.md).
+In production, the logger redacts `req.headers.authorization`, `req.headers.cookie`, and `res.headers` by default. See [configuration](/configuration/).
