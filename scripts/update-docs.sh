@@ -22,6 +22,12 @@ if ! command -v copilot >/dev/null 2>&1; then
   exit 0
 fi
 
+# Do not document source changes that are absent from the commit.
+if ! git diff --quiet; then
+  echo "update-docs: unstaged tracked changes, skipping to avoid documenting uncommitted code" >&2
+  exit 0
+fi
+
 # Refuse to run when docs/ already has edits, so only generated changes get staged.
 if [ -n "$(git status --porcelain -- docs)" ]; then
   echo "update-docs: docs/ has uncommitted changes, skipping to avoid staging unrelated edits" >&2
