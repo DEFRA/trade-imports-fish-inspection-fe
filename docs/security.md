@@ -44,7 +44,7 @@ Changes to inline scripts or Google hosts require updating this policy.
 
 ## Redirects
 
-Only same-site relative paths are accepted for the cookie form's `returnUrl`. See [cookie consent](/cookie-consent/).
+The cookie form's `returnUrl` is accepted when it starts with `/` but not `//`. This prefix check does not guarantee a same-site destination because it does not reject backslashes that browsers can normalize into slashes. See [cookie consent](/cookie-consent/).
 
 ## Logging
 
