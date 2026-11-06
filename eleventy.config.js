@@ -1,6 +1,6 @@
 import { govukEleventyPlugin } from '@x-govuk/govuk-eleventy-plugin'
 
-export default function(eleventyConfig) {
+export default function (eleventyConfig) {
   // Register the plugin
   eleventyConfig.addPlugin(govukEleventyPlugin)
 
@@ -11,11 +11,11 @@ export default function(eleventyConfig) {
     dir: {
       // The folder where all your content will live:
       input: 'docs',
-      output: "_site"
+      output: '_site'
     },
-     
+
     pathPrefix: process.env.GITHUB_ACTIONS
-      ? "/trade-imports-fish-inspection-fe/"
-      : "/"
+      ? '/trade-imports-fish-inspection-fe/'
+      : '/'
   }
-};
+}
