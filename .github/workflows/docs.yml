@@ -43,7 +43,7 @@ jobs:
         run: npm ci
 
       - name: Build documentation
-        run: npm run docs:build
+        run: rm -rf _site && npm run docs:build
 
       - name: Upload Eleventy site
         uses: actions/upload-pages-artifact@v4
