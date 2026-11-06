@@ -27,7 +27,9 @@
     "server:debug": "nodemon --inspect-brk=0.0.0.0 --ext js,json --legacy-watch --watch ./src/server --watch ./src/config --env-file-if-exists=.env ./src",
     "prestart": "npm run build:frontend",
     "start": "NODE_ENV=production node .",
-    "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module"
+    "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
+    "docs:serve": "eleventy --serve",
+    "docs:build": "eleventy"
   },
   "imports": {
     "#/*": "./src/*",
@@ -36,6 +38,7 @@
   "author": "Defra DDTS",
   "license": "OGL-UK-3.0",
   "dependencies": {
+    "@11ty/eleventy": "3.1.7",
     "@defra/cdp-auditing": "0.6.2",
     "@defra/cdp-metrics": "0.6.1",
     "@defra/hapi-secure-context": "0.4.0",
@@ -49,6 +52,7 @@
     "@hapi/scooter": "8.0.0",
     "@hapi/vision": "7.0.3",
     "@hapi/yar": "11.0.3",
+    "@x-govuk/govuk-eleventy-plugin": "9.0.2",
     "blankie": "5.0.0",
     "convict": "6.2.5",
     "convict-format-with-validator": "6.2.0",
