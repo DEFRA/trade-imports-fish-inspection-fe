@@ -2,7 +2,7 @@
 # Pre-commit step: asks the Copilot CLI to update docs/ from staged code changes using the tech-docs skill.
 set -eu
 
-SKILL=".github/skills/tech-docs/SKILL.md"
+SKILL=".github/skills/create-update-eleventy-docs/SKILL.md"
 
 if [ "${SKIP_DOCS_UPDATE:-}" = "1" ]; then
   echo "update-docs: skipped (SKIP_DOCS_UPDATE=1)"
