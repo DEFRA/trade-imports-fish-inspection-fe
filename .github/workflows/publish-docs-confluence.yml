@@ -26,6 +26,7 @@ permissions:
 concurrency:
   group: publish-docs-confluence
   cancel-in-progress: false
+  queue: max
 
 jobs:
   publish:
