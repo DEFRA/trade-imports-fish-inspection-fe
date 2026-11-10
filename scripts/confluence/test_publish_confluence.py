@@ -4,6 +4,8 @@ from unittest.mock import patch
 
 from publish_confluence import (
     ZERO_SHA,
+    git_changes,
+    git_show,
     main,
     parse_after_revision,
     parse_before_revision,
@@ -25,16 +27,30 @@ class GitRevisionArgumentTests(unittest.TestCase):
         self.assertEqual(parse_after_revision("HEAD"), "HEAD")
 
     def test_rejects_option_like_revision_before_running_git(self):
-        with patch("publish_confluence.git") as git:
+        with patch("publish_confluence.subprocess.run") as run:
             with self.assertRaises(SystemExit) as error:
                 main(["--before=--upload-pack=command", "--dry-run"])
 
         self.assertEqual(error.exception.code, 2)
-        git.assert_not_called()
+        run.assert_not_called()
 
     def test_rejects_non_commit_revision(self):
         with self.assertRaises(argparse.ArgumentTypeError):
             parse_after_revision("HEAD~1")
+
+    def test_git_changes_rejects_option_like_revision_before_running_git(self):
+        with patch("publish_confluence.subprocess.run") as run:
+            with self.assertRaises(ValueError):
+                git_changes("--upload-pack=command", "HEAD", "docs")
+
+        run.assert_not_called()
+
+    def test_git_show_rejects_option_like_revision_before_running_git(self):
+        with patch("publish_confluence.subprocess.run") as run:
+            with self.assertRaises(ValueError):
+                git_show("--upload-pack=command", "README.md")
+
+        run.assert_not_called()
 
 
 if __name__ == "__main__":
