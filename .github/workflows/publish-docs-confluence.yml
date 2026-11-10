@@ -43,7 +43,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: python -m pip install -r scripts/confluence/requirements.txt
+        run: 'python -m pip install --only-binary=:all: --require-hashes -r scripts/confluence/requirements.txt'
 
       - name: Publish changed documentation
         env:

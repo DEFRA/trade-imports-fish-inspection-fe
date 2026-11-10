@@ -68,6 +68,20 @@ def git(*args: str) -> str:
     ).stdout
 
 
+def parse_before_revision(value: str) -> str:
+    if value == ZERO_SHA or re.fullmatch(r"[0-9a-fA-F]{40}\^?", value):
+        return value
+    raise argparse.ArgumentTypeError(
+        "--before must be a full commit SHA, SHA^, or the zero SHA"
+    )
+
+
+def parse_after_revision(value: str) -> str:
+    if value == "HEAD" or re.fullmatch(r"[0-9a-fA-F]{40}", value):
+        return value
+    raise argparse.ArgumentTypeError("--after must be a full commit SHA or HEAD")
+
+
 def parse_target(text: str, path: str) -> PageTarget | None:
     match = FRONT_MATTER.match(text)
     meta = (yaml.safe_load(match.group(1)) or {}) if match else {}
@@ -233,8 +247,12 @@ def handle(change: Change, base: str | None, client: Confluence | None) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--docs-root", default="docs")
-    parser.add_argument("--before", help="base commit SHA for change detection")
-    parser.add_argument("--after", default="HEAD", help="head commit SHA")
+    parser.add_argument(
+        "--before", type=parse_before_revision, help="base commit SHA for change detection"
+    )
+    parser.add_argument(
+        "--after", default="HEAD", type=parse_after_revision, help="head commit SHA"
+    )
     parser.add_argument("--all", action="store_true", help="publish every mapped document")
     parser.add_argument("--dry-run", action="store_true", help="report actions without calling Confluence")
     args = parser.parse_args(argv)
