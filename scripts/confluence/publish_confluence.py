@@ -70,6 +70,13 @@ def is_after_revision(value: str) -> bool:
     return value == "HEAD" or re.fullmatch(r"[0-9a-fA-F]{40}", value) is not None
 
 
+def validate_docs_root(value: str) -> str:
+    path = Path(value)
+    if not value or path.is_absolute() or ".." in path.parts or "\0" in value:
+        raise ValueError("docs root must be a relative path inside the repository")
+    return path.as_posix()
+
+
 def git_show(base: str, path: str) -> str:
     if not is_before_revision(base):
         raise ValueError("Git base must be a full commit SHA, SHA^, or the zero SHA")
@@ -225,6 +232,7 @@ def retire(target: PageTarget | None, path: str, client: Confluence | None) -> N
 def git_changes(base: str, head: str, docs_root: str) -> list[Change]:
     if not is_before_revision(base) or not is_after_revision(head):
         raise ValueError("Invalid Git revision argument")
+    docs_root = validate_docs_root(docs_root)
     changes: list[Change] = []
     output = subprocess.run(
         [
@@ -252,6 +260,7 @@ def git_changes(base: str, head: str, docs_root: str) -> list[Change]:
 
 
 def all_documents(docs_root: str) -> list[Change]:
+    docs_root = validate_docs_root(docs_root)
     return [
         Change("M", str(path)) for path in sorted(Path(docs_root).rglob("*.md"))
     ]
@@ -276,7 +285,7 @@ def handle(change: Change, base: str | None, client: Confluence | None) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--docs-root", default="docs")
+    parser.add_argument("--docs-root", default="docs", type=validate_docs_root)
     parser.add_argument(
         "--before", type=parse_before_revision, help="base commit SHA for change detection"
     )

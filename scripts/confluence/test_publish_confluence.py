@@ -9,6 +9,7 @@ from publish_confluence import (
     main,
     parse_after_revision,
     parse_before_revision,
+    validate_docs_root,
 )
 
 
@@ -45,12 +46,36 @@ class GitRevisionArgumentTests(unittest.TestCase):
 
         run.assert_not_called()
 
+    def test_git_changes_rejects_parent_path_before_running_git(self):
+        sha = "a" * 40
+
+        with patch("publish_confluence.subprocess.run") as run:
+            with self.assertRaises(ValueError):
+                git_changes(sha, sha, "../outside")
+
+        run.assert_not_called()
+
+    def test_git_changes_keeps_option_like_docs_root_after_separator(self):
+        sha = "a" * 40
+        with patch("publish_confluence.subprocess.run") as run:
+            run.return_value.stdout = ""
+
+            self.assertEqual(git_changes(sha, sha, "--upload-pack=command"), [])
+
+        command = run.call_args.args[0]
+        self.assertEqual(command[-2:], ["--", "--upload-pack=command"])
+
     def test_git_show_rejects_option_like_revision_before_running_git(self):
         with patch("publish_confluence.subprocess.run") as run:
             with self.assertRaises(ValueError):
                 git_show("--upload-pack=command", "README.md")
 
         run.assert_not_called()
+
+    def test_docs_root_rejects_absolute_and_parent_paths(self):
+        for path in ("/tmp/docs", "../docs", "docs/../src"):
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                validate_docs_root(path)
 
 
 if __name__ == "__main__":
