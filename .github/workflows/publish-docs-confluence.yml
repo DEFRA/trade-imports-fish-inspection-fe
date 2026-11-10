@@ -1,0 +1,70 @@
+name: Publish docs to Confluence
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "scripts/confluence/**"
+      - ".github/workflows/publish-docs-confluence.yml"
+
+  workflow_dispatch:
+    inputs:
+      publish_all:
+        description: Publish every mapped document, not only changed ones
+        type: boolean
+        default: false
+      dry_run:
+        description: Report actions without calling the Confluence API
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-docs-confluence
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+        with:
+          # Full history is required to diff the pushed range
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r scripts/confluence/requirements.txt
+
+      - name: Publish changed documentation
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+          PUBLISH_ALL: ${{ inputs.publish_all || 'false' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          CONFLUENCE_BASE_URL: ${{ vars.CONFLUENCE_BASE_URL }}
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+        run: |
+          args=(--docs-root docs)
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$PUBLISH_ALL" = "true" ]; then
+            args+=(--all)
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            args+=(--before "$AFTER_SHA^" --after "$AFTER_SHA")
+          else
+            args+=(--before "$BEFORE_SHA" --after "$AFTER_SHA")
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python scripts/confluence/publish_confluence.py "${args[@]}"

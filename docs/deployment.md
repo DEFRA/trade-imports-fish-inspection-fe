@@ -37,4 +37,4 @@ An example Dependabot configuration is provided at `.github/example.dependabot.y
 
 ## CI
 
-Workflows are in `.github/workflows/` (`check-pull-request.yml`, `publish.yml`, `publish-hotfix.yml`). SonarCloud settings are in [sonar-project.properties](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/sonar-project.properties).
+Workflows are in `.github/workflows/` (`check-pull-request.yml`, `publish.yml`, `publish-hotfix.yml`, `publish-docs-confluence.yml`). The Confluence workflow runs `scripts/confluence/publish_confluence.py` on pushes to `main` that change `docs/`. It needs the `CONFLUENCE_BASE_URL` variable and the `CONFLUENCE_EMAIL` and `CONFLUENCE_API_TOKEN` secrets. Only documents with a `confluence.page_id` in their front matter are published. SonarCloud settings are in [sonar-project.properties](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/sonar-project.properties).

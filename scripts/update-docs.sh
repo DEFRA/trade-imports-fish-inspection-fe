@@ -45,7 +45,7 @@ PROMPT="Follow the skill in ${SKILL}. The staged code changes are listed by 'git
 copilot -p "$PROMPT" --allow-all-tools -s
 
 if [ -n "$(git status --porcelain -- docs)" ]; then
-  npx prettier --write docs >/dev/null
+  ./node_modules/.bin/prettier --write docs >/dev/null
   git add docs
   echo "update-docs: docs/ updated and staged"
 else
