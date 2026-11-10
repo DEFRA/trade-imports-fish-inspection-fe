@@ -1,8 +1,11 @@
 import { govukEleventyPlugin } from '@x-govuk/govuk-eleventy-plugin'
 
-export default function (eleventyConfig) {
+export default function EleventyConfig (eleventyConfig) {
   // Register the plugin
-  eleventyConfig.addPlugin(govukEleventyPlugin)
+  eleventyConfig.addPlugin(govukEleventyPlugin, {
+    // Use docs/assets/application.scss instead of the plugin's default stylesheet
+    stylesheets: ['/assets/application.css']
+  })
 
   return {
     dataTemplateEngine: 'njk',
