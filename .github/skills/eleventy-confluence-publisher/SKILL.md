@@ -23,7 +23,7 @@ These are repository files, not assets bundled inside this skill directory.
 
    ```yaml
    confluence:
-     page_id: "123456789"
+     page_id: '123456789'
      publish: true
      delete_mode: trash
    ```
