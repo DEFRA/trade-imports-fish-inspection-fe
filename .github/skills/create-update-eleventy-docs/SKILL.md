@@ -5,11 +5,11 @@ description: Create or update technical documentation in docs/ when asked to doc
 
 # Technical Documentation
 
-Create or reconcile focused technical Markdown documents under `./docs`, with one file per part of the service (for example routes, server plugins, Nunjucks configuration, client assets, or local infrastructure) and an index that links them. 
+Create or reconcile focused technical Markdown documents under `./docs`, with one file per part of the service (for example routes, server plugins, Nunjucks configuration, client assets, or local infrastructure) and an index that links them.
 
-`./docs` is the input folder for the GOV.UK Eleventy plugin configured in `eleventy.config.js`, so each document must be accurate Markdown that is compatible with Eleventy. 
+`./docs` is the input folder for the GOV.UK Eleventy plugin configured in `eleventy.config.js`, so each document must be accurate Markdown that is compatible with Eleventy.
 
-The implementation is the source of truth for current behavior. 
+The implementation is the source of truth for current behavior.
 
 When an existing document disagrees with working code, update the document to describe the code as it exists now; do not change code as part of this documentation task.
 
