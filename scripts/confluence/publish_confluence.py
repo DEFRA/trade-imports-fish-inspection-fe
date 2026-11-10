@@ -62,14 +62,27 @@ class Change:
     old_path: str | None = None
 
 
-def git(*args: str) -> str:
+def is_before_revision(value: str) -> bool:
+    return value == ZERO_SHA or re.fullmatch(r"[0-9a-fA-F]{40}\^?", value) is not None
+
+
+def is_after_revision(value: str) -> bool:
+    return value == "HEAD" or re.fullmatch(r"[0-9a-fA-F]{40}", value) is not None
+
+
+def git_show(base: str, path: str) -> str:
+    if not is_before_revision(base):
+        raise ValueError("Git base must be a full commit SHA, SHA^, or the zero SHA")
     return subprocess.run(
-        ["git", *args], check=True, capture_output=True, text=True
+        ["git", "--literal-pathspecs", "show", f"{base}:{path}"],
+        check=True,
+        capture_output=True,
+        text=True,
     ).stdout
 
 
 def parse_before_revision(value: str) -> str:
-    if value == ZERO_SHA or re.fullmatch(r"[0-9a-fA-F]{40}\^?", value):
+    if is_before_revision(value):
         return value
     raise argparse.ArgumentTypeError(
         "--before must be a full commit SHA, SHA^, or the zero SHA"
@@ -77,7 +90,7 @@ def parse_before_revision(value: str) -> str:
 
 
 def parse_after_revision(value: str) -> str:
-    if value == "HEAD" or re.fullmatch(r"[0-9a-fA-F]{40}", value):
+    if is_after_revision(value):
         return value
     raise argparse.ArgumentTypeError("--after must be a full commit SHA or HEAD")
 
@@ -111,7 +124,7 @@ def read_target(path: str) -> PageTarget | None:
 
 
 def read_base_target(base: str, path: str) -> PageTarget | None:
-    return parse_target(git("show", f"{base}:{path}"), path)
+    return parse_target(git_show(base, path), path)
 
 
 class Confluence:
@@ -210,8 +223,25 @@ def retire(target: PageTarget | None, path: str, client: Confluence | None) -> N
 
 
 def git_changes(base: str, head: str, docs_root: str) -> list[Change]:
+    if not is_before_revision(base) or not is_after_revision(head):
+        raise ValueError("Invalid Git revision argument")
     changes: list[Change] = []
-    output = git("diff", "--name-status", "-M", base, head, "--", docs_root)
+    output = subprocess.run(
+        [
+            "git",
+            "--literal-pathspecs",
+            "diff",
+            "--name-status",
+            "-M",
+            base,
+            head,
+            "--",
+            docs_root,
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
     for line in output.splitlines():
         fields = line.split("\t")
         if fields[0].startswith("R"):
