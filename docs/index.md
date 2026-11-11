@@ -1,7 +1,7 @@
 ---
 layout: page
-title: FIS inspection frontend
-description: Technical documentation
+title: Documentation overview
+description: 
 ---
 
 For setup basics see the [repository README](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/README.md).
