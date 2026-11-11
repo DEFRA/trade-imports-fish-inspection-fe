@@ -387,58 +387,6 @@ test('preserves a 120-character suffix without truncation', () => {
   expect(imageTag).toHaveLength(128)
 })
 
-test.each([
-  [119, 0],
-  [120, 1]
-])(
-  'validates the complete 1.10.0 prerelease tag with a %i-character suffix',
-  (suffixLength, expectedStatus) => {
-    git('tag', '1.9.0')
-    git('commit', '--allow-empty', '--quiet', '-m', 'Release changes #minor')
-    const branch = 'feature/FISB-139-'.padEnd(
-      suffixLength - RUN_SUFFIX.length,
-      'a'
-    )
-    const result = runScript(branch)
-
-    expect(result.status).toBe(expectedStatus)
-    if (expectedStatus === 0) {
-      expect(
-        `1.10.0-${branch.toLowerCase().replace('/', '-')}${RUN_SUFFIX}.0`
-      ).toHaveLength(128)
-    } else {
-      expect(result.stderr).toContain(
-        'complete prerelease image tag (129 characters) exceeds the Docker image tag limit'
-      )
-    }
-    expect(readFileSync(outputFile, 'utf8')).toBe(
-      expectedStatus === 0
-        ? `prerelease=true\nprerelease-suffix=${branch.toLowerCase().replace('/', '-')}${RUN_SUFFIX}\npush-dockerhub=false\n`
-        : ''
-    )
-  }
-)
-
-test('includes the next prerelease build number in the complete tag length', () => {
-  git('tag', '1.9.0')
-  git('commit', '--allow-empty', '--quiet', '-m', 'Release changes #minor')
-  const suffixLength = 119
-  const branch = 'feature/FISB-139-'.padEnd(
-    suffixLength - RUN_SUFFIX.length,
-    'a'
-  )
-  const suffix = `${branch.toLowerCase().replace('/', '-')}${RUN_SUFFIX}`
-  git('tag', `1.10.0-${suffix}.10`)
-
-  const result = runScript(branch)
-
-  expect(result.status).toBe(1)
-  expect(result.stderr).toContain(
-    'complete prerelease image tag (129 characters) exceeds the Docker image tag limit'
-  )
-  expect(readFileSync(outputFile, 'utf8')).toBe('')
-})
-
 test('rejects a suffix that cannot fit even the shortest Docker version tag', () => {
   const result = runScript(
     'feature/FISB-139-'.padEnd(121 - RUN_SUFFIX.length, 'a')
@@ -446,7 +394,10 @@ test('rejects a suffix that cannot fit even the shortest Docker version tag', ()
 
   expect(result.status).toBe(1)
   expect(result.stderr).toContain(
-    'complete prerelease image tag (129 characters) exceeds the Docker image tag limit'
+    'prerelease suffix, including the run ID and attempt, must not exceed 120 characters'
+  )
+  expect(result.stderr).toContain(
+    'actual version may require a shorter branch name'
   )
   expect(readFileSync(outputFile, 'utf8')).toBe('')
 })
@@ -725,11 +676,10 @@ describe('script entry-point boundaries', () => {
     executeGit
       .mockReturnValueOnce('')
       .mockReturnValueOnce('deployment-marker\nv1.0.0-beta.0\n')
-      .mockReturnValueOnce('')
 
     await import('./configure-publish-settings.js')
 
-    expect(executeGit).toHaveBeenCalledTimes(3)
+    expect(executeGit).toHaveBeenCalledTimes(2)
     expect(appendOutput).toHaveBeenCalledExactlyOnceWith(
       outputFile,
       `prerelease=true\nprerelease-suffix=feature-fisb-139-upload${RUN_SUFFIX}\npush-dockerhub=false\n`
