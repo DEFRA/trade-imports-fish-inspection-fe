@@ -56,7 +56,6 @@ jobs:
           prerelease: ${{ steps.publish-settings.outputs.prerelease }}
           prerelease-suffix: ${{ steps.publish-settings.outputs.prerelease-suffix }}
           push-dockerhub: ${{ steps.publish-settings.outputs.push-dockerhub }}
-          push-build-stages: ${{ steps.publish-settings.outputs.prerelease != 'true' }}
 
 #      - name: SonarCloud Scan
 #        uses: SonarSource/sonarqube-scan-action@v5.3.1 #  (or check latest version on https://github.com/marketplace/actions/official-sonarqube-scan)
