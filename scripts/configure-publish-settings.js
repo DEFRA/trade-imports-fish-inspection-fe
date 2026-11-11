@@ -22,10 +22,6 @@ const publishPrereleaseSuffix = publishPrerelease
     )
   : ''
 
-if (publishPrerelease) {
-  validatePrereleaseHistory()
-}
-
 appendFileSync(
   publishingOutputFile,
   serializePublishingSettings(publishPrerelease, publishPrereleaseSuffix)
@@ -52,7 +48,10 @@ function isPrereleaseBranch(branch) {
 function preparePrereleaseSuffix(branch, runId, runAttempt) {
   validatePrereleaseRunIdentifiers(runId, runAttempt)
   const suffix = buildPrereleaseSuffix(branch, runId, runAttempt)
-  validateDockerTagLength(suffix)
+  validateDockerTagLength(suffix, '0.0.0', 0)
+  const { latestStableTag, history } = validatePrereleaseHistory()
+  const version = getNextPrereleaseVersion(latestStableTag, history)
+  validateDockerTagLength(suffix, version, getNextBuildNumber(version, suffix))
   return suffix
 }
 
@@ -73,15 +72,44 @@ function buildPrereleaseSuffix(branch, runId, runAttempt) {
   return `${branch.toLowerCase().replace('/', '-')}-run-${runId}-attempt-${runAttempt}`
 }
 
-function validateDockerTagLength(prereleaseSuffix) {
-  // Tags include a version and build number; 0.0.0 and 0 need the fewest characters.
-  const shortestPossibleImageTag = `0.0.0-${prereleaseSuffix}.0`
+function validateDockerTagLength(prereleaseSuffix, version, buildNumber) {
+  const imageTag = `${version}-${prereleaseSuffix}.${buildNumber}`
 
-  if (shortestPossibleImageTag.length > MAX_DOCKER_TAG_LENGTH) {
+  if (imageTag.length > MAX_DOCKER_TAG_LENGTH) {
     throw new Error(
-      'Publish branch is too long: the prerelease suffix, including the run ID and attempt, must not exceed 120 characters. Docker image tags are limited to 128 characters including the version and build number; the actual version may require a shorter branch name.'
+      `Publish branch is too long: the complete prerelease image tag (${imageTag.length} characters) exceeds the Docker image tag limit of ${MAX_DOCKER_TAG_LENGTH} characters.`
     )
   }
+}
+
+function getNextPrereleaseVersion(latestStableTag, history) {
+  if (!latestStableTag) {
+    return '0.0.0'
+  }
+
+  const version = latestStableTag.replace(/^v/, '').split('.').map(Number)
+  if (history.includes('#major')) {
+    return `${version[0] + 1}.0.0`
+  }
+  if (history.includes('#minor')) {
+    return `${version[0]}.${version[1] + 1}.0`
+  }
+  if (history.includes('#patch')) {
+    return `${version[0]}.${version[1]}.${version[2] + 1}`
+  }
+  return `${version[0]}.${version[1] + 1}.0`
+}
+
+function getNextBuildNumber(version, prereleaseSuffix) {
+  const tagPrefix = `${version}-${prereleaseSuffix}.`
+  const buildNumbers = readGitTags(['tag', '--list'])
+    .filter((tag) => tag.startsWith(tagPrefix))
+    .map((tag) => tag.slice(tagPrefix.length))
+    .filter((buildNumber) => /^\d+$/.test(buildNumber))
+    .map(Number)
+    .filter(Number.isSafeInteger)
+
+  return buildNumbers.length === 0 ? 0 : Math.max(...buildNumbers) + 1
 }
 
 function validatePrereleaseHistory() {
@@ -89,10 +117,12 @@ function validatePrereleaseHistory() {
 
   const latestStableTag = findLatestReachableStableTag()
   if (!latestStableTag) {
-    return
+    return { latestStableTag, history: '' }
   }
 
-  validateVersionBumpHistory(readHistorySince(latestStableTag), latestStableTag)
+  const history = readHistorySince(latestStableTag)
+  validateVersionBumpHistory(history, latestStableTag)
+  return { latestStableTag, history }
 }
 
 function validateUnreleasedHead(stableTagsAtHead) {
