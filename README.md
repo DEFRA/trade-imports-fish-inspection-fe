@@ -1,8 +1,8 @@
 # trade-imports-fish-inspection-fe
 
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_trade-imports-fish-importer-fe&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_trade-imports-fish-importer-fe)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_trade-imports-fish-importer-fe&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_trade-imports-fish-importer-fe)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_trade-imports-fish-importer-fe&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_trade-imports-fish-importer-fe)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_trade-imports-fish-inspection-fe&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_trade-imports-fish-inspection-fe)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_trade-imports-fish-inspection-fe&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_trade-imports-fish-inspection-fe)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_trade-imports-fish-inspection-fe&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_trade-imports-fish-inspection-fe)
 
 Core delivery platform Node.js Frontend Template.
 
@@ -37,7 +37,7 @@ Please install Node Version Manager [nvm](https://github.com/creationix/nvm)
 To use the correct version of Node.js for this application, via nvm:
 
 ```bash
-cd trade-imports-fish-importer-fe
+cd trade-imports-fish-inspection-fe
 nvm use
 ```
 
@@ -142,18 +142,18 @@ git config --global core.autocrlf false
 
 > [!TIP]
 > For Apple Silicon users, you may need to add `--platform linux/amd64` to the `docker run` command to ensure
-> compatibility fEx: `docker build --platform=linux/arm64 --no-cache --tag trade-imports-fish-importer-fe`
+> compatibility fEx: `docker build --platform=linux/arm64 --no-cache --tag trade-imports-fish-inspection-fe`
 
 Build:
 
 ```bash
-docker build --target development --no-cache --tag trade-imports-fish-importer-fe:development .
+docker build --target development --no-cache --tag trade-imports-fish-inspection-fe:development .
 ```
 
 Run:
 
 ```bash
-docker run -p 3000:3000 trade-imports-fish-importer-fe:development
+docker run -p 3000:3000 trade-imports-fish-inspection-fe:development
 ```
 
 ### Production image
@@ -161,13 +161,13 @@ docker run -p 3000:3000 trade-imports-fish-importer-fe:development
 Build:
 
 ```bash
-docker build --no-cache --tag trade-imports-fish-importer-fe .
+docker build --no-cache --tag trade-imports-fish-inspection-fe .
 ```
 
 Run:
 
 ```bash
-docker run -p 3000:3000 trade-imports-fish-importer-fe
+docker run -p 3000:3000 trade-imports-fish-inspection-fe
 ```
 
 ### Publishing
