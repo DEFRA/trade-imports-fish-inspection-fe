@@ -1,9 +1,4 @@
----
-layout: page
-title: Logging and observability
-description: Logger, request logging and tracing, health check, Pulse and metrics.
-order: 9
----
+# Logging and observability
 
 This document covers logging, request tracing, the health endpoint, and the Pulse and metrics plugins.
 
@@ -28,9 +23,9 @@ This document covers logging, request tracing, the health endpoint, and the Puls
 
 ## Health check
 
-`GET /health` returns `{ "message": "success" }` with status 200. The platform uses it for health checks, so keep the route (see [routes](/routes/)).
+`GET /health` returns `{ "message": "success" }` with status 200. The platform uses it for health checks, so keep the route (see [routes](routes.md)).
 
-The production image installs `curl` for the platform health check (see [deployment](/deployment/)).
+The production image installs `curl` for the platform health check (see [deployment](deployment.md)).
 
 ## Pulse
 

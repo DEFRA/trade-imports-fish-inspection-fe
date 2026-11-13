@@ -1,9 +1,4 @@
----
-layout: page
-title: Security
-description: HTTP security headers, CSP, CSRF protection and cookie security.
-order: 6
----
+# Security
 
 This document covers the HTTP security controls applied to every response and request.
 
@@ -44,8 +39,8 @@ Changes to inline scripts or Google hosts require updating this policy.
 
 ## Redirects
 
-The cookie form's `returnUrl` is accepted when it starts with `/` but not `//`. This prefix check does not guarantee a same-site destination because it does not reject backslashes that browsers can normalize into slashes. See [cookie consent](/cookie-consent/).
+The cookie form's `returnUrl` is accepted when it starts with `/` but not `//`. This prefix check does not guarantee a same-site destination because it does not reject backslashes that browsers can normalize into slashes. See [cookie consent](cookie-consent.md).
 
 ## Logging
 
-In production, the logger redacts `req.headers.authorization`, `req.headers.cookie`, and `res.headers` by default. See [configuration](/configuration/).
+In production, the logger redacts `req.headers.authorization`, `req.headers.cookie`, and `res.headers` by default. See [configuration](configuration.md).

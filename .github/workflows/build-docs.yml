@@ -6,10 +6,8 @@ on:
       - main
     paths:
       - "docs/**"
-      - "eleventy.config.js"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/docs.yml"
+      - "mkdocs.yml"
+      - ".github/workflows/build-docs.yml"
 
   workflow_dispatch:
 
@@ -28,22 +26,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version-file: .nvmrc
-          cache: npm
+          python-version: "3.12"
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install MkDocs
+        run: pip install mkdocs-material==9.8.1
 
       - name: Build documentation
-        run: rm -rf _site && npm run docs:build
+        run: mkdocs build --strict -d _site
 
-      - name: Upload Eleventy site
+      - name: Upload MkDocs site
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site

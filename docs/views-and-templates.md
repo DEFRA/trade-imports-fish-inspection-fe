@@ -1,9 +1,4 @@
----
-layout: page
-title: Views and templates
-description: Nunjucks configuration, shared template context, layout and components.
-order: 7
----
+# Views and templates
 
 Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in [src/config/nunjucks/nunjucks.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/nunjucks.js).
 
@@ -27,7 +22,7 @@ Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in
 - `navigation`, built by [build-navigation.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/context/build-navigation.js). It contains "Dashboard" (`/`) and "About" (`/about`), with `current` set from the request path.
 - `getAssetPath(asset)`: in development returns `${assetPath}/${asset}`. In production it looks up the hashed file in the Vite manifest at `.public/.vite/manifest.json`.
 
-The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. See [cookie consent](/cookie-consent/).
+The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. See [cookie consent](cookie-consent.md).
 
 ## Globals and filters
 
@@ -53,4 +48,4 @@ Page views set `pageTitle`, which feeds the `<title>` as `pageTitle | serviceNam
 
 ## Error page
 
-[error/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/error/index.njk) renders the message passed by the error handler in [errors.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/helpers/errors.js). See [server startup](/server-startup/).
+[error/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/error/index.njk) renders the message passed by the error handler in [errors.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/helpers/errors.js). See [server startup](server-startup.md).

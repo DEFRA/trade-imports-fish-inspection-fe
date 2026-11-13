@@ -1,9 +1,4 @@
----
-layout: page
-title: Configuration
-description: Configuration keys, environment variables and defaults.
-order: 3
----
+# Configuration
 
 All configuration is defined with [convict](https://github.com/mozilla/node-convict) in [src/config/config.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/config.js). Values are read from environment variables where an `env` name is listed. The config is validated with `strict` mode at startup, so unknown keys fail fast.
 
@@ -33,7 +28,7 @@ Defaults marked "production" depend on `NODE_ENV === 'production'`.
 | `log.format`  | `LOG_FORMAT`         | `ecs` in production, otherwise `pino-pretty`           | `ecs` or `pino-pretty`          |
 | `log.redact`  | `LOG_REDACT`         | authorization, cookie, and `res.headers` in production | Paths removed from log output   |
 
-See [logging and observability](/logging-and-observability/).
+See [logging and observability](logging-and-observability.md).
 
 ## Sessions and cache
 
@@ -43,10 +38,10 @@ See [logging and observability](/logging-and-observability/).
 | `session.cache.name`      | `SESSION_CACHE_NAME`      | `session`                                 | Name of the Hapi cache                        |
 | `session.cache.ttl`       | `SESSION_CACHE_TTL`       | four hours (ms)                           | Server-side session lifetime                  |
 | `session.cookie.ttl`      | `SESSION_COOKIE_TTL`      | four hours (ms)                           | Session cookie lifetime                       |
-| `session.cookie.password` | `SESSION_COOKIE_PASSWORD` | a placeholder string                      | Sensitive. Must be overridden per environment |
+| `session.cookie.password` | `SESSION_COOKIE_PASSWORD` | `the-password-must-be-at-least-32-characters-long` | Sensitive. Must be overridden per environment |
 | `session.cookie.secure`   | `SESSION_COOKIE_SECURE`   | `true` in production                      | Secure flag on the session cookie             |
 
-See [sessions and caching](/sessions-and-caching/).
+See [sessions and caching](sessions-and-caching.md).
 
 ## Redis
 
@@ -75,7 +70,7 @@ See [sessions and caching](/sessions-and-caching/).
 | `nunjucks.watch`   | `true`                | Reload templates on change          |
 | `nunjucks.noCache` | `true`                | Recompile templates on every render |
 
-Both default to `false` outside development. See [views and templates](/views-and-templates/).
+Both default to `false` outside development. See [views and templates](views-and-templates.md).
 
 ## Local `.env`
 
