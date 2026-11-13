@@ -4,14 +4,14 @@ This document lists the HTTP routes the service exposes and how route modules ar
 
 ## Route table
 
-| Method | Path               | Auth | Handler                                                                                                                                                  | Response                                                  |
-| ------ | ------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| GET    | `/`                | none | [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/home/controller.js)                              | `home/index` view (Dashboard)                             |
-| GET    | `/about`           | none | [about controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/about/controller.js)                            | `about/index` view                                        |
-| GET    | `/health`          | none | [health controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/health/controller.js)                          | JSON `{ "message": "success" }`, 200                      |
-| GET    | `/cookies`         | none | [cookies controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/cookies/controller.js)                        | `cookies/policy` view                                     |
+| Method | Path               | Auth | Handler                                                                                                                                                  | Response                                                   |
+| ------ | ------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| GET    | `/`                | none | [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/home/controller.js)                              | `home/index` view (Dashboard)                              |
+| GET    | `/about`           | none | [about controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/about/controller.js)                            | `about/index` view                                         |
+| GET    | `/health`          | none | [health controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/health/controller.js)                          | JSON `{ "message": "success" }`, 200                       |
+| GET    | `/cookies`         | none | [cookies controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/cookies/controller.js)                        | `cookies/policy` view                                      |
 | POST   | `/cookies`         | none | [cookies controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/cookies/controller.js)                        | JSON or redirect, see [cookie consent](cookie-consent.md)  |
-| GET    | `/favicon.ico`     | none | [serve-static-files.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/serve-static-files.js)                    | 204 No Content (production and test only)                 |
+| GET    | `/favicon.ico`     | none | [serve-static-files.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/serve-static-files.js)                    | 204 No Content (production and test only)                  |
 | GET    | `/public/{param*}` | none | [serve-static-files.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/serve-static-files.js) or Vite middleware | Built client assets, see [client assets](client-assets.md) |
 
 Route handlers and the `/cookies` routes are wired in [router.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/router.js).
