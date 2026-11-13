@@ -1,9 +1,4 @@
----
-layout: page
-title: Cookie consent
-description: How analytics cookie consent is stored, enforced and presented.
-order: 5
----
+# Cookie consent
 
 The service asks users whether they accept analytics cookies. Consent is stored in a server-readable cookie. Google Tag Manager (GTM) loads only after the user accepts analytics. The implementation works without JavaScript, with JavaScript providing an enhanced experience.
 
@@ -44,7 +39,7 @@ Defined in [src/server/routes/cookies/controller.js](https://github.com/DEFRA/tr
 [banner.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/templates/partials/cookies/banner.njk) is a form posting to `/cookies`:
 
 - Without JavaScript, the Accept and Reject buttons submit `analytics=true` or `analytics=false`. `returnUrl` sends the user back to the current page.
-- The form includes the CSRF `crumb` as a hidden field (see [security](/security/)).
+- The form includes the CSRF `crumb` as a hidden field (see [security](security.md)).
 - `data-crumb` and `data-gtm-key` on the banner pass values to the client script.
 
 ## Client behaviour

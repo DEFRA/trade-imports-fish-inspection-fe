@@ -1,9 +1,4 @@
----
-layout: page
-title: Sessions and caching
-description: Server-side session storage, Catbox cache engines and the Redis client.
-order: 4
----
+# Sessions and caching
 
 This document covers server-side session storage, the Catbox cache engines, and the Redis client.
 

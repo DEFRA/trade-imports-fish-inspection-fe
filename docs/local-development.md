@@ -1,9 +1,4 @@
----
-layout: page
-title: Local development
-description: npm scripts, the Docker Compose stack, tests and lint tools.
-order: 10
----
+# Local development
 
 This document covers the npm scripts, the local Docker Compose stack, and the test and lint tools.
 
@@ -26,10 +21,10 @@ npm install
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `npm run dev`            | Runs `nodemon` with `AWS_EMF_ENVIRONMENT=Local`. Restarts on changes in `src/server` and `src/config`. Loads `.env` if present. |
 | `npm run dev:debug`      | Same as `dev`, with the Node inspector paused on start (`--inspect-brk`).                                                       |
-| `npm run build:frontend` | Builds client assets into `.public` (see [client assets](/client-assets/)).                                                     |
+| `npm run build:frontend` | Builds client assets into `.public` (see [client assets](client-assets.md)).                                                     |
 | `npm start`              | Runs the production mode entry (`NODE_ENV=production node .`). `prestart` builds assets first.                                  |
 
-The server listens on `PORT` (default `3000`). Configuration is described in [configuration](/configuration/).
+The server listens on `PORT` (default `3000`). Configuration is described in [configuration](configuration.md).
 
 ## Local stack with Docker Compose
 

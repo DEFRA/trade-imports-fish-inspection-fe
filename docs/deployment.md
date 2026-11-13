@@ -1,9 +1,4 @@
----
-layout: page
-title: Deployment
-description: Docker images, production container startup, dependency updates and CI.
-order: 11
----
+# Deployment
 
 This document describes the Docker images and how the production container starts.
 
@@ -28,7 +23,7 @@ docker run -p 3000:3000 trade-imports-fish-inspection-fe
 ## Runtime
 
 - The production container runs `node src`, which executes [src/index.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/index.js).
-- Production defaults are set by `NODE_ENV=production`: ECS logs, Redis session cache, TLS to Redis, secure cookies, and secure context. See [configuration](/configuration/).
+- Production defaults are set by `NODE_ENV=production`: ECS logs, Redis session cache, TLS to Redis, secure cookies, and secure context. See [configuration](configuration.md).
 - Session and consent cookies are `Secure` in production. Local Compose overrides `SESSION_COOKIE_SECURE` to `false`.
 
 ## Dependency updates
@@ -37,4 +32,9 @@ An example Dependabot configuration is provided at `.github/example.dependabot.y
 
 ## CI
 
-Workflows are in `.github/workflows/` (`check-pull-request.yml`, `publish.yml`, `publish-hotfix.yml`, `publish-docs-confluence.yml`). The Confluence workflow runs `scripts/confluence/publish_confluence.py` on pushes to `main` that change `docs/`. It needs the `CONFLUENCE_BASE_URL` variable and the `CONFLUENCE_EMAIL` and `CONFLUENCE_API_TOKEN` secrets. Only documents with a `confluence.page_id` in their front matter are published. SonarCloud settings are in [sonar-project.properties](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/sonar-project.properties).
+Workflows are in `.github/workflows/` (`check-pull-request.yml`, `publish.yml`, `publish-hotfix.yml`, `build-docs.yml`).
+
+- `build-docs.yml` runs on pushes to `main` that change `docs/` or `mkdocs.yml`. It installs `mkdocs-material`, runs `mkdocs build --strict -d _site`, and deploys `_site` to GitHub Pages. A warning or broken link fails the build.
+- The Confluence publishing workflow (`publish-docs-confluence.yml`) and its script under `scripts/confluence/` are absent from the current working tree (deleted in uncommitted changes), so there is no Confluence publishing step.
+
+SonarCloud settings are in [sonar-project.properties](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/sonar-project.properties).
