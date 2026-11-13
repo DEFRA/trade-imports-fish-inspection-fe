@@ -2,8 +2,8 @@
 
 For setup basics see the [repository README](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/README.md).
 
-| Document                                                 | Covers                                                           |
-| -------------------------------------------------------- | ---------------------------------------------------------------- |
+| Document                                                  | Covers                                                           |
+| --------------------------------------------------------- | ---------------------------------------------------------------- |
 | [Server startup and plugins](server-startup.md)           | Entry point, `createServer()`, plugin order, error handler       |
 | [Routes](routes.md)                                       | Route table, route module layout, static assets                  |
 | [Configuration](configuration.md)                         | All config keys, environment variables, and defaults             |

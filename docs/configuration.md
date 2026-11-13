@@ -32,14 +32,14 @@ See [logging and observability](logging-and-observability.md).
 
 ## Sessions and cache
 
-| Key                       | Environment variable      | Default                                   | Notes                                         |
-| ------------------------- | ------------------------- | ----------------------------------------- | --------------------------------------------- |
-| `session.cache.engine`    | `SESSION_CACHE_ENGINE`    | `redis` in production, otherwise `memory` | Allowed values: `redis`, `memory`             |
-| `session.cache.name`      | `SESSION_CACHE_NAME`      | `session`                                 | Name of the Hapi cache                        |
-| `session.cache.ttl`       | `SESSION_CACHE_TTL`       | four hours (ms)                           | Server-side session lifetime                  |
-| `session.cookie.ttl`      | `SESSION_COOKIE_TTL`      | four hours (ms)                           | Session cookie lifetime                       |
+| Key                       | Environment variable      | Default                                            | Notes                                         |
+| ------------------------- | ------------------------- | -------------------------------------------------- | --------------------------------------------- |
+| `session.cache.engine`    | `SESSION_CACHE_ENGINE`    | `redis` in production, otherwise `memory`          | Allowed values: `redis`, `memory`             |
+| `session.cache.name`      | `SESSION_CACHE_NAME`      | `session`                                          | Name of the Hapi cache                        |
+| `session.cache.ttl`       | `SESSION_CACHE_TTL`       | four hours (ms)                                    | Server-side session lifetime                  |
+| `session.cookie.ttl`      | `SESSION_COOKIE_TTL`      | four hours (ms)                                    | Session cookie lifetime                       |
 | `session.cookie.password` | `SESSION_COOKIE_PASSWORD` | `the-password-must-be-at-least-32-characters-long` | Sensitive. Must be overridden per environment |
-| `session.cookie.secure`   | `SESSION_COOKIE_SECURE`   | `true` in production                      | Secure flag on the session cookie             |
+| `session.cookie.secure`   | `SESSION_COOKIE_SECURE`   | `true` in production                               | Secure flag on the session cookie             |
 
 See [sessions and caching](sessions-and-caching.md).
 
