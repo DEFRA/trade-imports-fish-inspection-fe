@@ -43,7 +43,7 @@ ${STAGED_DIFF}"
 PERMISSIONS_DIR=$(mktemp -d)
 trap 'rm -rf "$PERMISSIONS_DIR"' EXIT HUP INT TERM
 copilot --config-dir="$PERMISSIONS_DIR" -p "$PROMPT" -s \
-  --available-tools='read,write' \
+  --available-tools='view,glob,grep,edit,create' \
   --allow-tool='read, write(docs/)' \
   --deny-tool='shell'
 
