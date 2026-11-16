@@ -1,6 +1,13 @@
 name: Deploy documentation
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+
   push:
     branches:
       - main
@@ -46,6 +53,7 @@ jobs:
           path: _site
 
   deploy:
+    if: github.event_name != 'pull_request'
     permissions:
       pages: write
       id-token: write

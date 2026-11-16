@@ -229,10 +229,10 @@ for how the options compare.
 
 ### Git hooks
 
-Install git hooks (optional)
+Install the repository's native Git hooks (optional):
 
 ```bash
-npm run setup:husky
+npm run setup:git-hooks
 ```
 
 ### Development

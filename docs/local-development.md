@@ -13,7 +13,7 @@ This document covers the npm scripts, the local Docker Compose stack, and the te
 npm install
 ```
 
-`npm run setup:husky` installs Husky hooks when Husky is present.
+`npm run setup:git-hooks` configures Git to use the repository's `.githooks` directory. This is a local Git setting and must be run once per clone.
 
 ## Running the service
 

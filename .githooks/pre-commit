@@ -1,2 +1,4 @@
+#!/bin/sh
+
 sh scripts/update-docs.sh
 npm run git:pre-commit-hook
