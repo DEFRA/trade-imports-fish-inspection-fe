@@ -1,5 +1,5 @@
 ---
-name: docs-as-code
+name: create-update-mkdocs
 description: Create or update technical documentation in docs/ when asked to document a feature, service, workflow, configuration, or code area. Compare existing Markdown with the current implementation and revise stale descriptions to match the code.
 ---
 
