@@ -4,12 +4,14 @@ set -eu
 
 SKILL=".github/skills/create-update-mkdocs/SKILL.md"
 
-# Update documentation for staged changes that can affect service behaviour or operations.
-CODE_CHANGES=$(git diff --cached --name-only --diff-filter=ACMRD -- \
-  'src/**' 'compose*' 'Dockerfile*' 'vite.config.js' 'package*.json' 'config/**' \
-  '.github/workflows/**' 'scripts/**' || true)
-if [ -z "$CODE_CHANGES" ]; then
-  echo "update-docs: no staged service or operational changes, skipping"
+# Update docs for every staged change outside the documentation itself and its tooling.
+NON_DOC_CHANGES=$(git diff --cached --name-only --diff-filter=ACMRD -- . \
+  ':(exclude)docs/**' \
+  ':(exclude).githooks/**' \
+  ':(exclude)scripts/update-docs.sh' \
+  ':(exclude).github/skills/create-update-mkdocs/**' || true)
+if [ -z "$NON_DOC_CHANGES" ]; then
+  echo "update-docs: no staged non-documentation changes, skipping"
   exit 0
 fi
 
