@@ -6,7 +6,7 @@ This document covers server-side session storage, the Catbox cache engines, and 
 
 [src/server/plugins/session-cache.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/session-cache.js) registers `@hapi/yar`:
 
-- The session is stored in the Hapi cache named by `session.cache.name` (default `session`), with an expiry of `session.cache.ttl` (default four hours).
+- Sessions that fit within Yar's default `maxCookieSize` are stored in the encrypted cookie. Larger sessions use the Hapi cache named by `session.cache.name` (default `session`), with an expiry of `session.cache.ttl` (default four hours).
 - The session cookie is named `session.cache.name`. Its password, lifetime, and `Secure` flag come from `session.cookie.*`.
 - `storeBlank` is `false`, so empty sessions are not written.
 - `errorOnCacheNotReady` is `true`, so requests fail if the cache is unavailable.
