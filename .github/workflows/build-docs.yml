@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  pages: read
 
 concurrency:
   group: github-pages
