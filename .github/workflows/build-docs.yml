@@ -7,7 +7,6 @@ on:
     paths:
       - "docs/**"
       - "mkdocs.yml"
-      - ".github/workflows/build-docs.yml"
 
   workflow_dispatch:
 
@@ -38,7 +37,7 @@ jobs:
         run: pip install mkdocs-material==9.8.1
 
       - name: Build documentation
-        run: mkdocs build --strict -d _site
+        run: mkdocs build --strict
 
       - name: Upload MkDocs site
         uses: actions/upload-pages-artifact@v4
