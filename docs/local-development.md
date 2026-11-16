@@ -15,6 +15,8 @@ npm install
 
 `npm run setup:git-hooks` configures Git to use the repository's `.githooks` directory. This is a local Git setting and must be run once per clone.
 
+When the pre-commit hook updates documentation, it runs the Copilot CLI with a temporary configuration directory to isolate tool permissions. Authentication saved by `copilot login` is not available in that directory, so set `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_TOKEN` in the environment before committing code.
+
 ## Running the service
 
 | Script                   | Purpose                                                                                                                         |

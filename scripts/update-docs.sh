@@ -20,6 +20,11 @@ if ! command -v copilot >/dev/null 2>&1; then
   exit 1
 fi
 
+if [ -z "${COPILOT_GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
+  echo "update-docs: set COPILOT_GITHUB_TOKEN, GH_TOKEN, or GITHUB_TOKEN to authenticate the Copilot CLI" >&2
+  exit 1
+fi
+
 if ! git diff --quiet; then
   echo "update-docs: commit or stash unstaged tracked changes before committing code" >&2
   exit 1
