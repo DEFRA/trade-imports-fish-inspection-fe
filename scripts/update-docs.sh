@@ -33,7 +33,7 @@ fi
 echo "update-docs: updating docs/ for staged changes"
 PROMPT="Follow the skill in ${SKILL}. The staged code changes are listed by 'git diff --cached --name-only'; read them with 'git diff --cached'. Update only the Markdown files under docs/ (including the docs/index.md index) so they match the current code. Do not modify any other file and do not run git commands that change the index or history."
 
-copilot -p "$PROMPT" -s
+copilot -p "$PROMPT" -s --allow-tool='read, write(docs/), shell(git diff --cached*)'
 
 if [ -n "$(git status --porcelain -- docs)" ]; then
   ./node_modules/.bin/prettier --write docs >/dev/null
