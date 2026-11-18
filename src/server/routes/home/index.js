@@ -13,6 +13,11 @@ export const home = {
           method: 'GET',
           path: '/',
           ...homeController
+        },
+        {
+          method: 'GET',
+          path: '/part2/v4/inspections',
+          ...homeController
         }
       ])
     }

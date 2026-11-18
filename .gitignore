@@ -11,3 +11,5 @@ _site
 .envrc
 tsconfig.tsbuildinfo
 .env
+tickets
+app

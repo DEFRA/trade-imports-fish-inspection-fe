@@ -20,6 +20,18 @@ describe('#homeController', () => {
     })
 
     expect(result).toEqual(expect.stringContaining('Dashboard |'))
+    expect(result).toEqual(expect.stringContaining('Inspection work queue'))
+    expect(result).toEqual(expect.stringContaining('GB-IUU-2026-11002'))
+    expect(statusCode).toBe(statusCodes.ok)
+  })
+
+  test('Should provide the inspection dashboard at the versioned dashboard route', async () => {
+    const { result, statusCode } = await server.inject({
+      method: 'GET',
+      url: '/part2/v4/inspections'
+    })
+
+    expect(result).toEqual(expect.stringContaining('Inspection work queue'))
     expect(statusCode).toBe(statusCodes.ok)
   })
 })
