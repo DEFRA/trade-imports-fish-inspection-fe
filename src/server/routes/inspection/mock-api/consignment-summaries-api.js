@@ -197,6 +197,8 @@ const buildConsignmentSummary = (seed, startOfToday) => {
     additionalDocumentCount: seed.additionalDocumentCount,
     status: seed.status,
     riskFlags: seed.riskFlags,
+    portId: seed.portId || 'FELIXSTOWE',
+    notificationStatus: seed.notificationStatus || 'SUBMITTED',
     riskNotes: seed.riskNotes || '',
     warningText: seed.warningText,
     assessmentSummary: seed.assessmentSummary,
@@ -210,11 +212,15 @@ const buildConsignmentSummary = (seed, startOfToday) => {
  * @param {Date} [today]
  * @returns {ConsignmentSummary[]}
  */
-const listConsignmentSummaries = (today = new Date()) => {
+const listConsignmentSummaries = (today = new Date(), portId) => {
   const startOfToday = toUtcDate(today)
-  return consignmentSummarySeeds.map((seed) =>
-    buildConsignmentSummary(seed, startOfToday)
-  )
+  return consignmentSummarySeeds
+    .filter(
+      (seed) =>
+        (seed.portId || 'FELIXSTOWE') === portId &&
+        (seed.notificationStatus || 'SUBMITTED') === 'SUBMITTED'
+    )
+    .map((seed) => buildConsignmentSummary(seed, startOfToday))
 }
 
 const mockConsignmentSummariesApi = {

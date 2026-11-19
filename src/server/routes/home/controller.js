@@ -1,4 +1,9 @@
 import { buildInspectionDashboardViewModel } from '../inspection/services/inspection-dashboard-service.js'
+import { findMockUser, mockUsers } from '../inspection/mock-users.js'
+import { config } from '#/config/config.js'
+import { statusCodes } from '#/server/common/constants/status-codes.js'
+
+const mockAuthEnabled = !config.get('isProduction')
 
 /**
  * A GDS styled example home page controller.
@@ -6,15 +11,87 @@ import { buildInspectionDashboardViewModel } from '../inspection/services/inspec
  */
 export const homeController = {
   handler(request, h) {
+    const user = request.yar.get('mock-user')
+    if (!user) {
+      return h.redirect('/mock-auth')
+    }
+
+    if (!user.roles?.includes('PHA') || !user.portId) {
+      return h.redirect('/mock-auth')
+    }
+
     return h.view('inspection/dashboard/index', {
       pageTitle: 'Dashboard',
-      basePath: '/part2/v4',
+      basePath: '',
+      user,
       ...buildInspectionDashboardViewModel(
         request.query,
         new Date(),
         {},
-        '/part2/v4'
+        '',
+        user.portId
       )
     })
+  }
+}
+
+export const accountController = {
+  handler(request, h) {
+    const user = request.yar.get('mock-user')
+    if (!user) {
+      return h.redirect('/mock-auth')
+    }
+
+    return h.view('inspection/account', {
+      pageTitle: 'Account information',
+      user
+    })
+  }
+}
+
+export const signOutController = {
+  handler(request, h) {
+    request.yar.clear('mock-user')
+    return h.redirect('/mock-auth')
+  }
+}
+
+export const mockAuthController = {
+  select: {
+    handler(request, h) {
+      if (!mockAuthEnabled) {
+        return h.response().code(404)
+      }
+
+      return h.view('inspection/mock-auth', {
+        pageTitle: 'Test user sign-in',
+        users: mockUsers
+      })
+    }
+  },
+  login: {
+    handler(request, h) {
+      if (!mockAuthEnabled) {
+        return h.response().code(404)
+      }
+
+      const user = findMockUser(request.payload?.mockUser)
+      if (!user) {
+        return h.response('Choose a valid mock user').code(400)
+      }
+
+      if (!user.roles?.includes('PHA')) {
+        return h
+          .view('error/index', {
+            pageTitle: 'Forbidden',
+            heading: statusCodes.forbidden,
+            message: 'You do not have permission to access this page'
+          })
+          .code(statusCodes.forbidden)
+      }
+
+      request.yar.set('mock-user', user)
+      return h.redirect('/inspections')
+    }
   }
 }

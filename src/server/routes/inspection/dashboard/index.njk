@@ -327,7 +327,8 @@
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-full">
-    <span class="govuk-caption-l">Signed in as Alex Morgan, Port of Felixstowe Port Health Authority</span>
+    <span class="govuk-caption-l">Signed in as {{ user.name }}, {{ user.organisationName }}</span>
+    <p class="govuk-body"><a class="govuk-link" href="/account">View account information</a></p>
     <h1 class="govuk-heading-xl">Import Notifications</h1>
     <div class="govuk-inset-text"><a class="govuk-link" href="#" onclick="return false;">Inspection guidance</a> is available to help review documents, identify missing evidence, make referral decisions and record inspection outcomes.</div>
 

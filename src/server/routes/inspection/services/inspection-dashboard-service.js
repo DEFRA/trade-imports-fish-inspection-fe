@@ -550,11 +550,12 @@ const buildInspectionDashboardViewModel = (
   query = {},
   today = new Date(),
   statusOverrides = {},
-  basePath = '/part2/v4'
+  basePath = '',
+  portId
 ) => {
   const filters = buildDashboardFilters(query)
   const consignments = mockConsignmentSummariesApi
-    .listConsignmentSummaries(today)
+    .listConsignmentSummaries(today, portId)
     .map((consignment) => {
       const override = statusOverrides[consignment.reference]
       if (!override) return consignment

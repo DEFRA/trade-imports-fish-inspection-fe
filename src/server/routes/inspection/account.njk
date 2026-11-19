@@ -1,0 +1,50 @@
+{% extends "layouts/page.njk" %}
+
+{% set pageName = "Account information" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ user.organisationName }}</span>
+      <h1 class="govuk-heading-xl">Account information</h1>
+      <div class="govuk-inset-text">
+        This page will be removed in the future. It is for mock user account info transparency only.
+      </div>
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Name</dt>
+          <dd class="govuk-summary-list__value">{{ user.name }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">User ID</dt>
+          <dd class="govuk-summary-list__value">{{ user.id }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Organisation</dt>
+          <dd class="govuk-summary-list__value">{{ user.organisationName }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Organisation ID</dt>
+          <dd class="govuk-summary-list__value">{{ user.organisationId }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Roles</dt>
+          <dd class="govuk-summary-list__value">{{ user.roles | join(", ") }}</dd>
+        </div>
+        {% if user.portId %}
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Port</dt>
+          <dd class="govuk-summary-list__value">{{ user.portId }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+      <div class="govuk-!-margin-bottom-4">
+        <p class="govuk-body"><a class="govuk-link" href="/inspections">Back to dashboard</a></p>
+        <form method="post" action="/sign-out">
+          <input type="hidden" name="crumb" value="{{ crumb }}">
+          <button class="govuk-button govuk-button--secondary" type="submit">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

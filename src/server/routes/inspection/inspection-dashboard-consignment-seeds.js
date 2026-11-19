@@ -1,6 +1,6 @@
 // Seed values use document references, species labels, product codes and origin examples
 // from the supplied "FES Data Dictionary 01-06 v1.xlsx" workbook.
-const consignmentSeeds = [
+const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11001',
     reference: 'GB-IUU-2026-11002',
@@ -573,4 +573,84 @@ const additionalConsignmentSeeds = pairedArrivalSeeds.map(
   }
 )
 
-export default [...consignmentSeeds, ...additionalConsignmentSeeds]
+const doverConsignmentSeeds = [
+  {
+    id: 'consignment-dover-21001',
+    reference: 'GB-IUU-2026-21001',
+    importer: 'Dover Seafood Imports Ltd',
+    originCountry: 'France',
+    arrivalOffsetDays: 1,
+    arrivalTime: '8:30am',
+    port: 'Dover',
+    portId: 'DOVER',
+    notificationStatus: 'SUBMITTED',
+    commodityCodes: ['030343'],
+    species: 'Skipjack tuna (Katsuwonus pelamis)',
+    declaredWeightKg: 6800,
+    catchCertificateCount: 1,
+    processingStatementCount: 1,
+    nmdCount: 0,
+    additionalDocumentCount: 0,
+    status: 'REQUIRES_DOCUMENT_CHECK',
+    riskFlags: []
+  },
+  {
+    id: 'consignment-dover-21002',
+    reference: 'GB-IUU-2026-21002',
+    importer: 'Channel Fish Traders Ltd',
+    originCountry: 'Spain',
+    arrivalOffsetDays: 3,
+    arrivalTime: '11:45am',
+    port: 'Dover',
+    portId: 'DOVER',
+    notificationStatus: 'SUBMITTED',
+    commodityCodes: ['03048720'],
+    species: 'Bluefin tuna loins',
+    declaredWeightKg: 4200,
+    catchCertificateCount: 1,
+    processingStatementCount: 1,
+    nmdCount: 0,
+    additionalDocumentCount: 1,
+    status: 'IN_PROGRESS',
+    riskFlags: ['MISSING_EVIDENCE']
+  }
+]
+
+const additionalDoverConsignmentSeeds = Array.from(
+  { length: 40 },
+  (_, index) => {
+    const [arrivalOffsetDays, status] =
+      pairedArrivalSeeds[index % pairedArrivalSeeds.length]
+    const referenceNumber = 21004 + index
+    return {
+      id: `consignment-dover-${referenceNumber}`,
+      reference: `GB-IUU-2026-${referenceNumber}`,
+      importer: additionalImporters[index % additionalImporters.length],
+      originCountry: additionalOrigins[index % additionalOrigins.length],
+      arrivalOffsetDays,
+      arrivalTime:
+        additionalArrivalTimes[index % additionalArrivalTimes.length],
+      port: 'Dover',
+      portId: 'DOVER',
+      notificationStatus: 'SUBMITTED',
+      commodityCodes: [
+        additionalCommodityCodes[index % additionalCommodityCodes.length]
+      ],
+      species: additionalSpecies[index % additionalSpecies.length],
+      declaredWeightKg: 3000 + index * 350,
+      catchCertificateCount: 1 + (index % 2),
+      processingStatementCount: index % 3,
+      nmdCount: index % 2,
+      additionalDocumentCount: index % 3,
+      status,
+      riskFlags: index % 4 === 0 ? ['MISSING_EVIDENCE'] : []
+    }
+  }
+)
+
+export default [
+  ...felixstoweConsignmentSeeds,
+  ...additionalConsignmentSeeds,
+  ...doverConsignmentSeeds,
+  ...additionalDoverConsignmentSeeds
+]
