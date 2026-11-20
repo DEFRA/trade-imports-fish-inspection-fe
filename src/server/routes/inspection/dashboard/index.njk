@@ -179,7 +179,10 @@
 {% endmacro %}
 
 {% macro renderConsignmentsTable(tabData, tabLabel) %}
-  <p class="govuk-body govuk-!-margin-bottom-4">
+  <p class="govuk-body govuk-!-margin-bottom-4"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true">
     Showing <strong>{{ tabData.filteredTotalCount }}</strong> results
   </p>
   <table class="govuk-table inspection-dashboard__stacked-table">
@@ -303,7 +306,7 @@
         {% endfor %}
       {% else %}
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell" colspan="1">No consignments match these filters.</td>
+          <td class="govuk-table__cell" colspan="1">No notifications match your search and filters.</td>
         </tr>
       {% endif %}
     </tbody>
