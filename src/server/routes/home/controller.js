@@ -25,13 +25,9 @@ export const homeController = {
       pageTitle: 'Dashboard',
       basePath: '',
       user,
-      ...buildInspectionDashboardViewModel(
-        request.query,
-        new Date(),
-        {},
-        '',
-        user.portId
-      )
+      ...buildInspectionDashboardViewModel(user.portId, {
+        query: request.query
+      })
     })
   }
 }
