@@ -32,8 +32,8 @@ const loadApiWithSeeds = async (seeds) => {
 
   vi.doUnmock('../inspection-dashboard-consignment-seeds.js')
   return {
-    listConsignmentSummaries: (today = new Date(), portId = PORT_ID) =>
-      mockConsignmentSummariesApi.listConsignmentSummaries(today, portId)
+    listConsignmentSummaries: (portId = PORT_ID, today = new Date()) =>
+      mockConsignmentSummariesApi.listConsignmentSummaries(portId, today)
   }
 }
 
@@ -52,7 +52,7 @@ describe('#mockConsignmentSummariesApi', () => {
     const api = await loadApiWithSeeds([seed])
     const today = new Date('2026-11-18T12:00:00.000Z')
 
-    const [summary] = api.listConsignmentSummaries(today)
+    const [summary] = api.listConsignmentSummaries(PORT_ID, today)
 
     expect(summary.estimatedArrival.toISOString()).toBe(
       '2026-11-20T00:00:00.000Z'
@@ -78,6 +78,7 @@ describe('#mockConsignmentSummariesApi', () => {
     const api = await loadApiWithSeeds([seed])
 
     const [summary] = api.listConsignmentSummaries(
+      PORT_ID,
       new Date('2026-11-18T12:00:00.000Z')
     )
 
@@ -89,6 +90,7 @@ describe('#mockConsignmentSummariesApi', () => {
     const api = await loadApiWithSeeds([createSeed()])
 
     const [summary] = api.listConsignmentSummaries(
+      PORT_ID,
       new Date('2026-11-18T12:00:00.000Z')
     )
 
@@ -105,7 +107,7 @@ describe('#mockConsignmentSummariesApi', () => {
     }
     const api = await loadApiWithSeeds([createSeed(), otherPortSeed])
 
-    expect(api.listConsignmentSummaries(undefined, 'GRIMSBY')).toHaveLength(1)
+    expect(api.listConsignmentSummaries('GRIMSBY')).toHaveLength(1)
   })
 
   test.each([

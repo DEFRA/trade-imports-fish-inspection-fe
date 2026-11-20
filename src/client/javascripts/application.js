@@ -11,11 +11,12 @@ import cookies from './cookies.js'
 
 cookies.init()
 
+const INSPECTION_SORT_SCROLL_POSITION_KEY = 'inspection-sort-scroll-position'
 const sortScrollPosition = sessionStorage.getItem(
-  'inspection-sort-scroll-position'
+  INSPECTION_SORT_SCROLL_POSITION_KEY
 )
 if (sortScrollPosition !== null) {
-  sessionStorage.removeItem('inspection-sort-scroll-position')
+  sessionStorage.removeItem(INSPECTION_SORT_SCROLL_POSITION_KEY)
   globalThis.requestAnimationFrame(() =>
     window.scrollTo(0, Number(sortScrollPosition))
   )
@@ -26,7 +27,7 @@ document
   .forEach((control) => {
     control.addEventListener('change', () => {
       sessionStorage.setItem(
-        'inspection-sort-scroll-position',
+        INSPECTION_SORT_SCROLL_POSITION_KEY,
         String(window.scrollY)
       )
       control.form.requestSubmit()

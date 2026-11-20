@@ -269,7 +269,7 @@ const buildInspectionDashboardViewModel = (
 ) => {
   const filters = buildDashboardFilters(query)
   const consignments = applyStatusOverrides(
-    mockConsignmentSummariesApi.listConsignmentSummaries(today, portId),
+    mockConsignmentSummariesApi.listConsignmentSummaries(portId, today),
     statusOverrides,
     today
   )

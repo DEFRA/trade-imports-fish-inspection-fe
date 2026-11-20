@@ -30,12 +30,29 @@ The [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/
 
 ## Data and tabs
 
-- Consignments come from `mockConsignmentSummariesApi.listConsignmentSummaries(today, portId)`.
+- Consignments come from `mockConsignmentSummariesApi.listConsignmentSummaries(portId, today)`, which builds them from the seed data described in [Seed data](#seed-data). Only seeds whose `portId` matches (default `FELIXSTOWE`) and whose `notificationStatus` is `SUBMITTED` (the default) are returned.
 - Optional `statusOverrides` (keyed by reference) replace a consignment's status, label and tag class, and set `completedAt` when the override status is `COMPLETED`. The controller does not pass overrides.
 - Consignments with status `COMPLETED` go to the completed tab; all others go to the active tab.
 - The same filters and sort are applied to both tabs. Ties are broken by reference. `desc` reverses the sorted list.
 - Each tab has `rows`, `totalCount`, `filteredTotalCount`, `filteredStart`, `filteredEnd` and a single-page `pagination` placeholder (`currentPage` 1, `pageCount` 1 when rows exist, otherwise 0).
 - When sorting by estimated arrival, the first row for each arrival date gets an `arrivalDateHeading`.
+
+## Seed data
+
+The seeds live in `src/server/routes/inspection/` and are validated and converted to consignment summaries by the mock API ([consignment-summaries-api.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/mock-api/consignment-summaries-api.js)).
+
+- [inspection-dashboard-consignment-seeds.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds.js): default export combining all seed groups, plus the generators for the additional Felixstowe and Dover seeds.
+- [inspection-dashboard-consignment-seeds-felixstowe.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds-felixstowe.js): Felixstowe seeds and the importer name constants shared with the generators.
+- [inspection-dashboard-consignment-seed-generator-controls.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seed-generator-controls.js): reference start numbers, base weights, weight increments and the document count cycle for generated seeds.
+- [inspection-dashboard-paired-arrival-seeds.json](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-paired-arrival-seeds.json): `[arrivalOffsetDays, status]` pairs used by the generators.
+
+The combined export is ordered as follows:
+
+- Felixstowe seeds, additional Felixstowe seeds, two hand-written Dover seeds, then additional Dover seeds.
+- Additional Felixstowe seeds: one per pair in the JSON file, with references `GB-IUU-2026-<n>` starting at 11022, weight starting at 3200 kg and increasing by 425 kg each.
+- Additional Dover seeds: 40, taking pairs from the JSON file (wrapping if needed), with references starting at 21004, weight starting at 3000 kg and increasing by 350 kg each. They have `portId` `DOVER` and `notificationStatus` `SUBMITTED`.
+- Importer, origin, arrival time and commodity code are cycled by index. Species is cycled for Dover and taken by index from the species list for Felixstowe. Document counts use `index % 3` (catch certificates `1 + index % 2`), and every fourth seed has the `MISSING_EVIDENCE` risk flag.
+- The [seed test](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds.test.js) checks the group order, a total of 84 seeds and sample generated values.
 
 ## Quick filters and summary cards
 

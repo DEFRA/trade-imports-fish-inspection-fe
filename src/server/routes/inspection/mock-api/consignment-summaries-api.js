@@ -242,7 +242,7 @@ const buildConsignmentSummary = (seed, startOfToday) => {
  * @param {Date} [today]
  * @returns {ConsignmentSummary[]}
  */
-const listConsignmentSummaries = (today = new Date(), portId) => {
+const listConsignmentSummaries = (portId, today = new Date()) => {
   const startOfToday = toUtcDate(today)
   return consignmentSummarySeeds
     .filter(
