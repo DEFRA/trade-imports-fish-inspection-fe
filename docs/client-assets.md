@@ -25,7 +25,9 @@ Vite settings:
 
 ## JavaScript
 
-[application.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/application.js) initialises the cookie banner and the GOV.UK Frontend components `Button`, `Checkboxes`, `ErrorSummary`, `Radios`, and `SkipLink`.
+[application.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/application.js) initialises the cookie banner and the GOV.UK Frontend components `Button`, `Checkboxes`, `ErrorSummary`, `Radios`, `SkipLink`, and `Tabs`.
+
+It also preserves the scroll position when an element with `data-inspection-sort-control` changes: the position is stored in `sessionStorage` (`inspection-sort-scroll-position`), the form is submitted, and the position is restored on the next load.
 
 [cookies.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/cookies.js) implements consent handling. See [cookie consent](cookie-consent.md).
 

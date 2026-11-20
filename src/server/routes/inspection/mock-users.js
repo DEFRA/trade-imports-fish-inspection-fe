@@ -20,7 +20,7 @@ const mockUsers = [
     name: 'Michael Brown',
     roles: ['IMPORTER'],
     organisationId: 'TEST-IMPORTER',
-    organisationName: 'Test importer (non-Port Health Authority)'
+    organisationName: 'Non-Port Health Authority User'
   }
 ]
 

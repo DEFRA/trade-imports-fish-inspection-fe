@@ -1,8 +1,10 @@
 import { vi } from 'vitest'
+import * as cheerio from 'cheerio'
 
 import { catchAll } from './errors.js'
 import { createServer } from '../../server.js'
 import { statusCodes } from '../constants/status-codes.js'
+import { config } from '#/config/config.js'
 
 describe('#errors', () => {
   let server
@@ -27,6 +29,57 @@ describe('#errors', () => {
     )
     expect(statusCode).toBe(statusCodes.notFound)
   })
+
+  test.each([true, false])(
+    'preserves %s analytics consent on the Not Found page',
+    async (analytics) => {
+      const consentPage = await server.inject({
+        method: 'GET',
+        url: '/cookies'
+      })
+      const $ = cheerio.load(consentPage.payload)
+      const consentCookie = config.get('cookieConsent.name')
+      const initialCookies = [consentPage.headers['set-cookie']]
+        .flat()
+        .filter(Boolean)
+        .map((cookie) => cookie.split(';')[0])
+        .filter((cookie) => !cookie.startsWith(`${consentCookie}=`))
+
+      const update = await server.inject({
+        method: 'POST',
+        url: '/cookies',
+        headers: { cookie: initialCookies.join('; ') },
+        payload: {
+          analytics,
+          async: true,
+          crumb: $('input[name="crumb"]').val()
+        }
+      })
+
+      const cookies = [
+        ...initialCookies,
+        ...[update.headers['set-cookie']]
+          .flat()
+          .filter(Boolean)
+          .map((cookie) => cookie.split(';')[0])
+      ]
+      const notFound = await server.inject({
+        method: 'GET',
+        url: '/non-existent-path',
+        headers: { cookie: cookies.join('; ') }
+      })
+      const errorPage = cheerio.load(notFound.payload)
+
+      expect(notFound.statusCode).toBe(statusCodes.notFound)
+      expect(errorPage('.govuk-cookie-banner').length).toBe(0)
+      expect(
+        notFound.request.response.source.context.cookiesPolicy
+      ).toMatchObject({
+        confirmed: true,
+        analytics
+      })
+    }
+  )
 })
 
 describe('#catchAll', () => {

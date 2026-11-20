@@ -141,9 +141,22 @@
         <a href="{{ basePath }}/inspections?tab={{ tabId }}#{{ tabId }}" class="govuk-link">Clear filters</a>
       </div>
     </div>
+  </form>
 
-        {{ renderActiveFilterChips(activeFilterChips, tabId) }}
+  {{ renderActiveFilterChips(activeFilterChips, tabId) }}
 
+  <form method="get" action="{{ basePath }}/inspections#{{ tabId }}" aria-label="Sort consignments" data-inspection-sort-form>
+    <input type="hidden" name="tab" value="{{ tabId }}">
+    {% for quickFilter in filters.quickFilters %}
+      <input type="hidden" name="quick-filter" value="{{ quickFilter }}">
+    {% endfor %}
+    <input type="hidden" name="search" value="{{ filters.search }}">
+    <input type="hidden" name="filter-importer" value="{{ filters.importer }}">
+    <input type="hidden" name="filter-status" value="{{ filters.status }}">
+    <input type="hidden" name="filter-origin" value="{{ filters.origin }}">
+    <input type="hidden" name="filter-risk-indicator" value="{{ filters.riskIndicator }}">
+    <input type="hidden" name="filter-arrival-from" value="{{ filters.arrivalFrom }}">
+    <input type="hidden" name="filter-arrival-to" value="{{ filters.arrivalTo }}">
     <div class="inspection-dashboard__sort-grid">
       <div class="govuk-form-group govuk-!-margin-bottom-0">
         <label class="govuk-label" for="{{ tabId }}-sort-by">Sort by</label>
@@ -330,7 +343,7 @@
     <span class="govuk-caption-l">Signed in as {{ user.name }}, {{ user.organisationName }}</span>
     <p class="govuk-body"><a class="govuk-link" href="/account">View account information</a></p>
     <h1 class="govuk-heading-xl">Import Notifications</h1>
-    <div class="govuk-inset-text"><a class="govuk-link" href="#" onclick="return false;">Inspection guidance</a> is available to help review documents, identify missing evidence, make referral decisions and record inspection outcomes.</div>
+    <div class="govuk-inset-text">Inspection guidance is available to help review documents, identify missing evidence, make referral decisions and record inspection outcomes.</div>
 
     {{ renderSummaryFilterCards(summaryCards) }}
 

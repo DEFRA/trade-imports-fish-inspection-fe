@@ -30,6 +30,8 @@ Each feature lives in `src/server/routes/<name>/`:
 - `index.njk` is the view, when the route renders HTML. Views are referenced by path relative to `src/server/routes`, for example `home/index`. The `cookies` module renders `policy.njk`.
 - `controller.test.js` holds the Vitest tests.
 
+The `error` module only holds the `index.njk` view used by the error handler and the mock sign-in 403 response. Its `index.js` is empty and registers no routes.
+
 The `about` route is an example page from the CDP template. The `health` route must stay: it is used by the platform.
 
 ## Mock sign-in

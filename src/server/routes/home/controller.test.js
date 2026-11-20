@@ -173,6 +173,8 @@ describe('#homeController', () => {
     const $ = cheerio.load(response.payload)
 
     expect(response.statusCode).toBe(200)
+    expect($('.govuk-inset-text [onclick]')).toHaveLength(0)
+    expect($('.govuk-inset-text').text()).toContain('Inspection guidance')
     expect(response.payload).toContain(
       'Signed in as John Smith, Port of Felixstowe Port Health Authority'
     )
@@ -182,6 +184,24 @@ describe('#homeController', () => {
     expect($('.inspection-dashboard__reference')).toHaveLength(42)
     expect($('nav a[href="/about"]')).toHaveLength(0)
     expect($('nav a[href="/"]')).toHaveLength(0)
+  })
+
+  test('sort controls have a separate form with the applied filters', async () => {
+    const response = await getDashboardAs(
+      'felixstowe-test',
+      '/inspections?tab=active&search=GB-IUU-2026-11002&filter-status=SUBMITTED'
+    )
+    const $ = cheerio.load(response.payload)
+    const sortForm = $('[data-inspection-sort-form]').first()
+
+    expect(response.statusCode).toBe(200)
+    expect(sortForm.find('[data-inspection-sort-control]')).toHaveLength(2)
+    expect(sortForm.find('input[name="search"]').attr('value')).toBe(
+      'GB-IUU-2026-11002'
+    )
+    expect(sortForm.find('input[name="filter-status"]').attr('value')).toBe(
+      'SUBMITTED'
+    )
   })
 
   test('shows only submitted notifications and scoped counts for another PHA', async () => {
