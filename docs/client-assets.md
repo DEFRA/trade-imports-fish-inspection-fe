@@ -25,13 +25,16 @@ Vite settings:
 
 ## JavaScript
 
-[application.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/application.js) initialises the cookie banner and the GOV.UK Frontend components `Button`, `Checkboxes`, `ErrorSummary`, `Radios`, and `SkipLink`.
+[application.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/application.js) initialises the cookie banner and the GOV.UK Frontend components `Button`, `Checkboxes`, `ErrorSummary`, `Radios`, `SkipLink`, and `Tabs`.
+
+It also preserves the scroll position when an element with `data-inspection-sort-control` changes: the position is stored in `sessionStorage` (`inspection-sort-scroll-position`), the form is submitted, and the position is restored on the next load.
 
 [cookies.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/cookies.js) implements consent handling. See [cookie consent](cookie-consent.md).
 
 ## Styles
 
 - [application.scss](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/stylesheets/application.scss) is the entry point.
-- Partials cover variables (`variables/_colours.scss`), core layout (`core/`), helpers (`helpers/`), and components (`components/`).
+- It uses `@use` for `govuk-frontend`, `variables`, `helpers`, `core`, `components`, `partials` and `inspection-dashboard` (the dashboard styles in `_inspection-dashboard.scss`).
+- Partials cover variables (`variables/_colours.scss`), core layout (`core/_header.scss` and `core/_main.scss`), helpers (`helpers/_links.scss`), and components (`components/`, which uses the `heading` component styles).
 - `_govuk-frontend.scss` imports GOV.UK Frontend.
 - Linting: `npm run lint:scss` runs Stylelint over `src/**/*.scss`.

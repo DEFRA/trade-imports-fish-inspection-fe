@@ -19,7 +19,6 @@ Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in
 - `assetPath`: `${assetPath}/assets`
 - `serviceName`, `serviceUrl` (`/`), `cookieName`, `googleTagManagerKey`
 - `breadcrumbs` (empty by default)
-- `navigation`, built by [build-navigation.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/context/build-navigation.js). It contains "Dashboard" (`/`) and "About" (`/about`), with `current` set from the request path.
 - `getAssetPath(asset)`: in development returns `${assetPath}/${asset}`. In production it looks up the hashed file in the Vite manifest at `.public/.vite/manifest.json`.
 
 The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. See [cookie consent](cookie-consent.md).
@@ -33,7 +32,7 @@ The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. 
 
 [page.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/templates/layouts/page.njk) extends `govuk/template.njk` and provides:
 
-- A GOV.UK header and service navigation.
+- A GOV.UK header and a service navigation component with the name "Fish import inspection" linking to `/`. It has no navigation links.
 - A Beta phase banner.
 - Breadcrumbs when `breadcrumbs.length > 1`.
 - A footer with Privacy, Cookies, and Accessibility links.
@@ -44,7 +43,7 @@ Page views set `pageTitle`, which feeds the `<title>` as `pageTitle | serviceNam
 ## Components
 
 - [heading/macro.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/components/heading/macro.njk) provides `appHeading`, which is imported into the layout. Styles are in `_heading.scss`.
-- Route views (for example [home/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/home/index.njk)) extend the layout and render content in the `content` block.
+- Route views (for example [inspection/dashboard/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/dashboard/index.njk)) extend the layout and render content in the `content` block.
 
 ## Error page
 
