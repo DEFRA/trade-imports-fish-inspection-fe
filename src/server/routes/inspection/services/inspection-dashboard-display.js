@@ -52,7 +52,12 @@ const parseIsoDateInput = (value) => {
   const parsedDate = new Date(
     Date.UTC(Number(year), Number(month) - 1, Number(day))
   )
-  if (Number.isNaN(parsedDate.getTime())) {
+  if (
+    Number.isNaN(parsedDate.getTime()) ||
+    parsedDate.getUTCFullYear() !== Number(year) ||
+    parsedDate.getUTCMonth() !== Number(month) - 1 ||
+    parsedDate.getUTCDate() !== Number(day)
+  ) {
     return null
   }
 

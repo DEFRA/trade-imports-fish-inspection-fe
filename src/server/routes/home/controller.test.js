@@ -1,4 +1,5 @@
 import { createServer } from '#/server/server.js'
+import { homeController } from './controller.js'
 import * as cheerio from 'cheerio'
 
 describe('#homeController', () => {
@@ -138,6 +139,41 @@ describe('#homeController', () => {
 
     expect(response.statusCode).toBe(302)
     expect(response.headers.location).toBe('/mock-auth')
+  })
+
+  test('redirects a PHA user without a port to sign-in', () => {
+    const redirect = vi.fn()
+
+    homeController.handler(
+      {
+        yar: {
+          get: () => ({ roles: ['PHA'] })
+        }
+      },
+      { redirect }
+    )
+
+    expect(redirect).toHaveBeenCalledWith('/mock-auth')
+  })
+
+  test('rejects an unknown mock user during sign-in', async () => {
+    const signInPage = await server.inject({
+      method: 'GET',
+      url: '/mock-auth'
+    })
+    const $ = cheerio.load(signInPage.payload)
+    const response = await server.inject({
+      method: 'POST',
+      url: '/mock-auth',
+      headers: { cookie: cookiesFor(signInPage) },
+      payload: {
+        mockUser: 'unknown-user',
+        crumb: $('input[name="crumb"]').val()
+      }
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(response.payload).toContain('Choose a valid mock user')
   })
 
   test('signs out and clears the session', async () => {
