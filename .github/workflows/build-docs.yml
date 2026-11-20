@@ -5,15 +5,15 @@ on:
     branches:
       - main
     paths:
-      - "docs/**"
-      - "mkdocs.yml"
+      - 'docs/**'
+      - 'mkdocs.yml'
 
   push:
     branches:
       - main
     paths:
-      - "docs/**"
-      - "mkdocs.yml"
+      - 'docs/**'
+      - 'mkdocs.yml'
 
   workflow_dispatch:
 
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5

@@ -34,7 +34,7 @@ export const home = {
         {
           method: 'GET',
           path: '/',
-          handler(request, h) {
+          handler(_request, h) {
             return h.redirect('/inspections')
           }
         },

@@ -3,6 +3,7 @@ import { findMockUser, mockUsers } from '../inspection/mock-users.js'
 import { config } from '#/config/config.js'
 import { statusCodes } from '#/server/common/constants/status-codes.js'
 
+const mockAuthPath = '/mock-auth'
 const mockAuthEnabled = !config.get('isProduction')
 
 /**
@@ -13,11 +14,11 @@ export const homeController = {
   handler(request, h) {
     const user = request.yar.get('mock-user')
     if (!user) {
-      return h.redirect('/mock-auth')
+      return h.redirect(mockAuthPath)
     }
 
     if (!user.roles?.includes('PHA') || !user.portId) {
-      return h.redirect('/mock-auth')
+      return h.redirect(mockAuthPath)
     }
 
     return h.view('inspection/dashboard/index', {
@@ -39,7 +40,7 @@ export const accountController = {
   handler(request, h) {
     const user = request.yar.get('mock-user')
     if (!user) {
-      return h.redirect('/mock-auth')
+      return h.redirect(mockAuthPath)
     }
 
     return h.view('inspection/account', {
@@ -52,15 +53,15 @@ export const accountController = {
 export const signOutController = {
   handler(request, h) {
     request.yar.clear('mock-user')
-    return h.redirect('/mock-auth')
+    return h.redirect(mockAuthPath)
   }
 }
 
 export const mockAuthController = {
   select: {
-    handler(request, h) {
+    handler(_request, h) {
       if (!mockAuthEnabled) {
-        return h.response().code(404)
+        return h.response().code(statusCodes.notFound)
       }
 
       return h.view('inspection/mock-auth', {
@@ -72,12 +73,14 @@ export const mockAuthController = {
   login: {
     handler(request, h) {
       if (!mockAuthEnabled) {
-        return h.response().code(404)
+        return h.response().code(statusCodes.notFound)
       }
 
       const user = findMockUser(request.payload?.mockUser)
       if (!user) {
-        return h.response('Choose a valid mock user').code(400)
+        return h
+          .response('Choose a valid mock user')
+          .code(statusCodes.badRequest)
       }
 
       if (!user.roles?.includes('PHA')) {

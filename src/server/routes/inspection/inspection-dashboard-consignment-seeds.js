@@ -1,10 +1,18 @@
 // Seed values use document references, species labels, product codes and origin examples
 // from the supplied "FES Data Dictionary 01-06 v1.xlsx" workbook.
+const NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD =
+  'New England Seafood International Ltd'
+const ATLANTIC_TUNA_IMPORTS = 'Atlantic Tuna Imports Ltd'
+const HARBOUR_CATCH_IMPORTS = 'Harbour Catch Imports'
+const OCEAN_HARVEST_IMPORTS = 'Ocean Harvest Imports'
+const ATLANTIC_SEAFOODS = 'Atlantic Seafoods Ltd'
+const NEW_ENGLAND_SEAFOOD_INTERNATIONAL = 'New England Seafood International'
+
 const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11001',
     reference: 'GB-IUU-2026-11002',
-    importer: 'New England Seafood International Ltd',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
     originCountry: 'France',
     arrivalOffsetDays: -1,
     arrivalTime: '9:00am',
@@ -27,7 +35,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11002',
     reference: 'GB-IUU-2026-11003',
-    importer: 'New England Seafood International Ltd',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
     originCountry: 'Spain, France, Seychelles and Chile',
     arrivalOffsetDays: 105,
     arrivalTime: '',
@@ -52,7 +60,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11003',
     reference: 'GB-IUU-2026-11001',
-    importer: 'New England Seafood International Ltd',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
     originCountry: 'France',
     arrivalOffsetDays: 4,
     arrivalTime: '',
@@ -73,7 +81,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11004',
     reference: 'GB-IUU-2026-11004',
-    importer: 'Atlantic Tuna Imports Ltd',
+    importer: ATLANTIC_TUNA_IMPORTS,
     originCountry: 'Spain',
     arrivalOffsetDays: 5,
     arrivalTime: '8:30am',
@@ -90,7 +98,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11005',
     reference: 'GB-IUU-2026-11005',
-    importer: 'Harbour Catch Imports',
+    importer: HARBOUR_CATCH_IMPORTS,
     originCountry: 'Ecuador',
     arrivalOffsetDays: 6,
     arrivalTime: '4:20pm',
@@ -107,7 +115,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11006',
     reference: 'GB-IUU-2026-11006',
-    importer: 'Ocean Harvest Imports',
+    importer: OCEAN_HARVEST_IMPORTS,
     originCountry: 'Iceland',
     arrivalOffsetDays: 7,
     arrivalTime: '1:10pm',
@@ -125,7 +133,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11007',
     reference: 'GB-IUU-2026-11007',
-    importer: 'Atlantic Seafoods Ltd',
+    importer: ATLANTIC_SEAFOODS,
     originCountry: 'Mauritius',
     arrivalOffsetDays: 9,
     arrivalTime: '10:45am',
@@ -142,7 +150,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11008',
     reference: 'GB-IUU-2026-11008',
-    importer: 'New England Seafood International',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL,
     originCountry: 'Morocco',
     arrivalOffsetDays: 10,
     arrivalTime: '9:25am',
@@ -176,7 +184,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11010',
     reference: 'GB-IUU-2026-11010',
-    importer: 'Atlantic Tuna Imports Ltd',
+    importer: ATLANTIC_TUNA_IMPORTS,
     originCountry: 'Ghana',
     arrivalOffsetDays: 14,
     arrivalTime: '12:05pm',
@@ -193,7 +201,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11011',
     reference: 'GB-IUU-2026-11011',
-    importer: 'Harbour Catch Imports',
+    importer: HARBOUR_CATCH_IMPORTS,
     originCountry: 'Vietnam',
     arrivalOffsetDays: 15,
     arrivalTime: '7:50am',
@@ -210,7 +218,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-10482',
     reference: 'GB-IUU-2026-10482',
-    importer: 'Atlantic Seafoods Ltd',
+    importer: ATLANTIC_SEAFOODS,
     originCountry: 'Senegal',
     arrivalOffsetDays: 17,
     arrivalTime: '2:30pm',
@@ -227,7 +235,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11013',
     reference: 'GB-IUU-2026-11013',
-    importer: 'New England Seafood International',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL,
     originCountry: 'Namibia',
     arrivalOffsetDays: 19,
     arrivalTime: '6:05pm',
@@ -262,7 +270,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11015',
     reference: 'GB-IUU-2026-11015',
-    importer: 'Atlantic Tuna Imports Ltd',
+    importer: ATLANTIC_TUNA_IMPORTS,
     originCountry: 'Thailand',
     arrivalOffsetDays: 24,
     arrivalTime: '11:55am',
@@ -279,7 +287,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11016',
     reference: 'GB-IUU-2026-11016',
-    importer: 'Ocean Harvest Imports',
+    importer: OCEAN_HARVEST_IMPORTS,
     originCountry: 'Indonesia',
     arrivalOffsetDays: 27,
     arrivalTime: '8:10am',
@@ -296,7 +304,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11017',
     reference: 'GB-IUU-2026-11017',
-    importer: 'Atlantic Seafoods Ltd',
+    importer: ATLANTIC_SEAFOODS,
     originCountry: 'Peru',
     arrivalOffsetDays: 31,
     arrivalTime: '4:45pm',
@@ -313,7 +321,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11018',
     reference: 'GB-IUU-2026-11018',
-    importer: 'New England Seafood International',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL,
     originCountry: 'Canada',
     arrivalOffsetDays: 34,
     arrivalTime: '12:20pm',
@@ -347,7 +355,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11020',
     reference: 'GB-IUU-2026-11020',
-    importer: 'Atlantic Tuna Imports Ltd',
+    importer: ATLANTIC_TUNA_IMPORTS,
     originCountry: 'South Korea',
     arrivalOffsetDays: 45,
     arrivalTime: '5:30pm',
@@ -364,7 +372,7 @@ const felixstoweConsignmentSeeds = [
   {
     id: 'consignment-11021',
     reference: 'GB-IUU-2026-11021',
-    importer: 'New England Seafood International Ltd',
+    importer: NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
     originCountry: 'Iceland',
     arrivalOffsetDays: 2,
     arrivalTime: '6:00am',
@@ -509,12 +517,12 @@ const additionalSpecies = [
 ]
 const additionalImporters = [
   'North Atlantic Seafood Ltd',
-  'Harbour Catch Imports',
-  'Atlantic Tuna Imports Ltd',
-  'Ocean Harvest Imports',
+  HARBOUR_CATCH_IMPORTS,
+  ATLANTIC_TUNA_IMPORTS,
+  OCEAN_HARVEST_IMPORTS,
   'Frinsa UK',
-  'New England Seafood International Ltd',
-  'Atlantic Seafoods Ltd'
+  NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
+  ATLANTIC_SEAFOODS
 ]
 const additionalOrigins = [
   'Iceland',

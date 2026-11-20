@@ -41,7 +41,7 @@ The `home` plugin registers the dashboard, account, sign-out and mock sign-in ro
 - The `/mock-auth` routes are registered only when `isProduction` is false. If they were reached while disabled, the handlers return 404.
 - `GET /mock-auth` lists the users from [mock-users.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/mock-users.js): `felixstowe-test` (PHA, port `FELIXSTOWE`), `dover-test` (PHA, port `DOVER`) and `non-pha-test` (role `IMPORTER`, no port).
 - `POST /mock-auth` reads `mockUser` from the payload. An unknown id returns 400. A user without the `PHA` role gets the `error/index` view with status 403. Otherwise the user is saved in the session and the response redirects to `/inspections`.
-- `/inspections` redirects to `/mock-auth` when there is no session user, or when the user lacks the `PHA` role or a `portId`. Otherwise it renders the dashboard for the user's port: `portId` is passed to `buildInspectionDashboardViewModel`, and the mock consignment API returns only consignments for that port (seeds without a `portId` default to `FELIXSTOWE`).
+- `/inspections` redirects to `/mock-auth` when there is no session user, or when the user lacks the `PHA` role or a `portId`. Otherwise it renders the dashboard for the user's port: `portId` is passed to `buildInspectionDashboardViewModel`, and the mock consignment API returns only consignments for that port whose `notificationStatus` is `SUBMITTED` (seeds without a `portId` default to `FELIXSTOWE`, and seeds without a `notificationStatus` default to `SUBMITTED`).
 - `/account` renders the signed-in user's details and redirects to `/mock-auth` when there is no session user.
 
 ## Static assets

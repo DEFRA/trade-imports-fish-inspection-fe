@@ -62,7 +62,7 @@ const toUtcDate = (date) =>
   new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
 
 const addDays = (date, dayOffset) => {
-  const nextDate = new Date(date.getTime())
+  const nextDate = new Date(date)
   nextDate.setUTCDate(nextDate.getUTCDate() + dayOffset)
   return nextDate
 }
@@ -79,11 +79,13 @@ const assertPositiveInteger = (value, fieldName, reference) => {
   }
 }
 
-const assertSeedValid = (seed) => {
+const assertSeedIsObject = (seed) => {
   if (!seed || typeof seed !== 'object') {
     throw new Error('Each consignment seed must be an object')
   }
+}
 
+const assertRequiredFields = (seed) => {
   if (
     !seed.id ||
     !seed.reference ||
@@ -95,7 +97,9 @@ const assertSeedValid = (seed) => {
       `Missing required consignment data for ${seed.reference || seed.id || 'unknown reference'}`
     )
   }
+}
 
+const assertArrivalDate = (seed) => {
   if (!seed.arrivalDate && !Number.isInteger(seed.arrivalOffsetDays)) {
     throw new Error(
       `arrivalOffsetDays must be an integer for ${seed.reference}`
@@ -108,19 +112,25 @@ const assertSeedValid = (seed) => {
   ) {
     throw new Error(`Invalid arrivalDate for ${seed.reference}`)
   }
+}
 
+const assertCommodityCodes = (seed) => {
   if (!Array.isArray(seed.commodityCodes) || seed.commodityCodes.length === 0) {
     throw new Error(
       `commodityCodes must be a non-empty array for ${seed.reference}`
     )
   }
+}
 
+const assertStatus = (seed) => {
   if (!statusCodeSet.has(seed.status)) {
     throw new Error(`Invalid status ${seed.status} for ${seed.reference}`)
   }
+}
 
+const assertRiskFlags = (seed) => {
   if (!Array.isArray(seed.riskFlags)) {
-    throw new Error(`riskFlags must be an array for ${seed.reference}`)
+    throw new TypeError(`riskFlags must be an array for ${seed.reference}`)
   }
 
   for (const riskFlag of seed.riskFlags) {
@@ -128,7 +138,9 @@ const assertSeedValid = (seed) => {
       throw new Error(`Invalid risk flag ${riskFlag} for ${seed.reference}`)
     }
   }
+}
 
+const assertDocumentCounts = (seed) => {
   assertPositiveInteger(
     seed.declaredWeightKg,
     'declaredWeightKg',
@@ -152,16 +164,34 @@ const assertSeedValid = (seed) => {
   )
 }
 
+const assertSeedValid = (seed) => {
+  assertSeedIsObject(seed)
+  assertRequiredFields(seed)
+  assertArrivalDate(seed)
+  assertCommodityCodes(seed)
+  assertStatus(seed)
+  assertRiskFlags(seed)
+  assertDocumentCounts(seed)
+}
+
+const getCompletedAt = (seed, startOfToday) => {
+  if (Number.isInteger(seed.completedOffsetDays)) {
+    return addDays(startOfToday, seed.completedOffsetDays)
+  }
+
+  if (seed.completedAt) {
+    return new Date(seed.completedAt)
+  }
+
+  return null
+}
+
 const buildConsignmentSummary = (seed, startOfToday) => {
   assertSeedValid(seed)
   const estimatedArrival = seed.arrivalDate
     ? new Date(seed.arrivalDate + 'T00:00:00Z')
     : addDays(startOfToday, seed.arrivalOffsetDays)
-  const completedAt = Number.isInteger(seed.completedOffsetDays)
-    ? addDays(startOfToday, seed.completedOffsetDays)
-    : seed.completedAt
-      ? new Date(seed.completedAt)
-      : null
+  const completedAt = getCompletedAt(seed, startOfToday)
   const commoditySpecies = seed.commoditySpecies || [
     {
       commodityCode: seed.commodityCodes[0],
@@ -217,8 +247,8 @@ const listConsignmentSummaries = (today = new Date(), portId) => {
   return consignmentSummarySeeds
     .filter(
       (seed) =>
-        (seed.portId || 'FELIXSTOWE') === portId &&
-        (seed.notificationStatus || 'SUBMITTED') === 'SUBMITTED'
+        (seed?.portId || 'FELIXSTOWE') === portId &&
+        (seed?.notificationStatus || 'SUBMITTED') === 'SUBMITTED'
     )
     .map((seed) => buildConsignmentSummary(seed, startOfToday))
 }

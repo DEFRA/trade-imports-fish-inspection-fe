@@ -9,6 +9,9 @@ const ACTIVE_TAB = 'active'
 const COMPLETED_TAB = 'completed'
 const DEFAULT_SORT_BY = 'estimated-arrival'
 const DEFAULT_SORT_ORDER = 'asc'
+const GOVUK_TAG_RED = 'govuk-tag--red'
+const GOVUK_TAG_YELLOW = 'govuk-tag--yellow'
+const MISMATCHES_FLAGGED_FILTER = 'mismatches-flagged'
 
 const STATUS_LABELS = {
   REQUIRES_DOCUMENT_CHECK: 'Requires document check',
@@ -25,15 +28,15 @@ const STATUS_LABELS = {
 }
 
 const STATUS_TAG_CLASSES = {
-  REQUIRES_DOCUMENT_CHECK: 'govuk-tag--red',
+  REQUIRES_DOCUMENT_CHECK: GOVUK_TAG_RED,
   IN_PROGRESS: 'govuk-tag--blue',
-  REQUEST_ADDITIONAL_INFORMATION: 'govuk-tag--yellow',
+  REQUEST_ADDITIONAL_INFORMATION: GOVUK_TAG_YELLOW,
   REFERRED_TO_MMO: 'govuk-tag--purple',
   COMPLETED: 'govuk-tag--green',
-  REQUIRES_PHYSICAL_INSPECTION: 'govuk-tag--red',
-  APPEAL_UNDER_REVIEW: 'govuk-tag--yellow',
+  REQUIRES_PHYSICAL_INSPECTION: GOVUK_TAG_RED,
+  APPEAL_UNDER_REVIEW: GOVUK_TAG_YELLOW,
   REFERRED_TO_ENFORCEMENT: 'govuk-tag--purple',
-  REJECTED: 'govuk-tag--red',
+  REJECTED: GOVUK_TAG_RED,
   CLOSED: 'govuk-tag--grey'
 }
 
@@ -73,14 +76,14 @@ const QUICK_FILTER_GROUPS = [
       consignment.status === 'COMPLETED' && consignment.isCompletedToday
   },
   {
-    key: 'mismatches-flagged',
+    key: MISMATCHES_FLAGGED_FILTER,
     label: 'Mismatches flagged',
     matches: hasMismatch
   }
 ]
 
 const SORT_OPTIONS = [
-  { value: 'estimated-arrival', text: 'Estimated Arrival' },
+  { value: DEFAULT_SORT_BY, text: 'Estimated Arrival' },
   { value: 'importer', text: 'Importer' },
   { value: 'status', text: 'Status' },
   { value: 'reference', text: 'Consignment Reference' }
@@ -139,8 +142,8 @@ const toIsoDate = (date) => {
 }
 
 const mapDaysUntilArrivalTagClass = (daysUntilArrival) => {
-  if (daysUntilArrival < 3) return 'govuk-tag--red'
-  if (daysUntilArrival <= 8) return 'govuk-tag--yellow'
+  if (daysUntilArrival < 3) return GOVUK_TAG_RED
+  if (daysUntilArrival <= 8) return GOVUK_TAG_YELLOW
   return 'govuk-tag--green'
 }
 
@@ -324,7 +327,7 @@ const filterConsignments = (consignments, filters) =>
   )
 
 const compareBySortField = (first, second, sortBy) => {
-  if (sortBy === 'estimated-arrival') {
+  if (sortBy === DEFAULT_SORT_BY) {
     return first.estimatedArrival.getTime() - second.estimatedArrival.getTime()
   }
 
@@ -474,14 +477,14 @@ const getSummaryCards = (consignments, filters, basePath) =>
             : consignment.status !== 'COMPLETED'
         )
         .filter(group.matches).length,
-      modifier: ['awaiting-inspection', 'mismatches-flagged'].includes(
+      modifier: ['awaiting-inspection', MISMATCHES_FLAGGED_FILTER].includes(
         group.key
       )
         ? 'action'
         : '',
       active,
       tabVariants:
-        group.key === 'mismatches-flagged'
+        group.key === MISMATCHES_FLAGGED_FILTER
           ? [ACTIVE_TAB, COMPLETED_TAB].map((targetTab) => ({
               tab: targetTab,
               count: consignments
