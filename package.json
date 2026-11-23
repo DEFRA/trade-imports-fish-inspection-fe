@@ -87,6 +87,9 @@
   "overrides": {
     "blankie": {
       "@hapi/joi": "npm:joi@17.13.9"
+    },
+    "hapi-pulse": {
+      "joi": "17.13.9"
     }
   }
 }
