@@ -235,13 +235,10 @@ describe('application browser initialization', () => {
 
   test('updates mismatch summary count and destination when the selected tab changes', async () => {
     const makeVariant = (tab, count, href) => ({
-      getAttribute: vi.fn((name) => {
-        const values = {
-          'data-count': String(count),
-          'data-href': href
-        }
-        return values[name]
-      }),
+      dataset: {
+        count: String(count),
+        href
+      },
       tab
     })
     const variants = {

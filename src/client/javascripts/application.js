@@ -96,8 +96,8 @@ const updateSummaryCards = (tab) => {
         return
       }
 
-      count.textContent = variant.getAttribute('data-count')
-      link.setAttribute('href', variant.getAttribute('data-href'))
+      count.textContent = variant.dataset.count
+      link.setAttribute('href', variant.dataset.href)
     })
 }
 
