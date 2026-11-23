@@ -2,6 +2,21 @@ import { vi } from 'vitest'
 
 const PORT_ID = 'FELIXSTOWE'
 
+const withTimeZone = async (timeZone, callback) => {
+  const originalTimeZone = process.env.TZ
+  process.env.TZ = timeZone
+
+  try {
+    return await callback()
+  } finally {
+    if (originalTimeZone === undefined) {
+      delete process.env.TZ
+    } else {
+      process.env.TZ = originalTimeZone
+    }
+  }
+}
+
 const createSeed = () => ({
   id: 'consignment-1',
   reference: 'GB-IUU-2026-1',
@@ -67,6 +82,20 @@ describe('#mockConsignmentSummariesApi', () => {
       }
     ])
     expect(today.toISOString()).toBe('2026-11-18T12:00:00.000Z')
+  })
+
+  test('recognizes UTC-midnight completion dates in a negative-offset timezone', async () => {
+    await withTimeZone('America/Los_Angeles', async () => {
+      const seed = { ...createSeed(), completedOffsetDays: 0 }
+      const api = await loadApiWithSeeds([seed])
+      const [summary] = api.listConsignmentSummaries(
+        PORT_ID,
+        new Date('2026-11-18T12:00:00.000Z')
+      )
+
+      expect(summary.completedAt.toISOString()).toBe('2026-11-18T00:00:00.000Z')
+      expect(summary.isCompletedToday).toBe(true)
+    })
   })
 
   test('uses an explicit completion timestamp when no integer offset is supplied', async () => {

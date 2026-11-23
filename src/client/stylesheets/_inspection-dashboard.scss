@@ -143,15 +143,6 @@
   display: none;
 }
 
-.inspection-dashboard__row {
-  cursor: pointer;
-}
-
-.inspection-dashboard__row:focus {
-  outline: 3px solid #ffdd00;
-  outline-offset: -3px;
-}
-
 .inspection-dashboard__filter-grid,
 .inspection-dashboard__search-grid {
   display: grid;

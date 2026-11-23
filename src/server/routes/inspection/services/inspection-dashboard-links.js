@@ -21,6 +21,10 @@ const appendQueryValue = (query, key, value) => {
   }
 }
 
+const STATUS_QUICK_FILTER_KEYS = QUICK_FILTER_GROUPS.filter(
+  ({ tab }) => tab
+).map(({ key }) => key)
+
 const buildDashboardHref = (filters, basePath, tab, overrides = {}) => {
   const query = new URLSearchParams({ tab })
   const values = {
@@ -75,7 +79,12 @@ const buildSummaryCard = (consignments, filters, basePath, group) => {
   const tab = active ? filters.tab : group.tab || filters.tab
   const selectedQuickFilters = active
     ? filters.quickFilters.filter((key) => key !== group.key)
-    : [...filters.quickFilters, group.key]
+    : [
+        ...filters.quickFilters.filter(
+          (key) => !group.tab || !STATUS_QUICK_FILTER_KEYS.includes(key)
+        ),
+        group.key
+      ]
 
   return {
     key: group.key,

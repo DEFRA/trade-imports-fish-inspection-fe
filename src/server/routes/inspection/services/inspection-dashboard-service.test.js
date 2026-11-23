@@ -2,6 +2,21 @@ import { buildInspectionDashboardViewModel } from './inspection-dashboard-servic
 
 const today = new Date('2026-11-18T12:00:00.000Z')
 
+const withTimeZone = (timeZone, callback) => {
+  const originalTimeZone = process.env.TZ
+  process.env.TZ = timeZone
+
+  try {
+    return callback()
+  } finally {
+    if (originalTimeZone === undefined) {
+      delete process.env.TZ
+    } else {
+      process.env.TZ = originalTimeZone
+    }
+  }
+}
+
 describe('inspection dashboard view model', () => {
   test('builds a grouped commodity and document summary for a multi-species consignment', () => {
     const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
@@ -110,6 +125,40 @@ describe('inspection dashboard view model', () => {
     ).toBe(false)
   })
 
+  test('replaces status quick filters while retaining independent mismatch filters', () => {
+    const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
+      today,
+      basePath: '/trade',
+      query: {
+        'quick-filter': ['in-progress', 'mismatches-flagged']
+      }
+    })
+    const awaitingInspectionCard = dashboard.summaryCards.find(
+      ({ key }) => key === 'awaiting-inspection'
+    )
+    const completedTodayCard = dashboard.summaryCards.find(
+      ({ key }) => key === 'completed-today'
+    )
+    const awaitingInspectionUrl = new URL(
+      awaitingInspectionCard.href,
+      'http://example.test'
+    )
+    const completedTodayUrl = new URL(
+      completedTodayCard.href,
+      'http://example.test'
+    )
+
+    expect(awaitingInspectionUrl.searchParams.getAll('quick-filter')).toEqual([
+      'mismatches-flagged',
+      'awaiting-inspection'
+    ])
+    expect(completedTodayUrl.searchParams.get('tab')).toBe('completed')
+    expect(completedTodayUrl.searchParams.getAll('quick-filter')).toEqual([
+      'mismatches-flagged',
+      'completed-today'
+    ])
+  })
+
   test('ignores a calendar-invalid date filter instead of rolling it into another month', () => {
     const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
       today,
@@ -134,6 +183,49 @@ describe('inspection dashboard view model', () => {
     expect(dashboard.active.filteredTotalCount).toBe(
       dashboard.active.totalCount
     )
+  })
+
+  test('filters consignments by UTC arrival date in a negative-offset timezone', () => {
+    withTimeZone('America/Los_Angeles', () => {
+      const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
+        today,
+        query: {
+          'filter-arrival-from': '2026-11-17',
+          'filter-arrival-to': '2026-11-17'
+        }
+      })
+      const rows = [...dashboard.active.rows, ...dashboard.completed.rows]
+
+      expect(rows.length).toBeGreaterThan(0)
+      expect(
+        rows.every(
+          ({ estimatedArrivalIsoDate }) =>
+            estimatedArrivalIsoDate === '2026-11-17'
+        )
+      ).toBe(true)
+    })
+  })
+
+  test('recognizes UTC-midnight completion overrides in a negative-offset timezone', () => {
+    withTimeZone('America/Los_Angeles', () => {
+      const baselineDashboard = buildInspectionDashboardViewModel(
+        'FELIXSTOWE',
+        { today }
+      )
+      const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
+        today,
+        statusOverrides: {
+          'GB-IUU-2026-11002': {
+            statusCode: 'COMPLETED',
+            completedAt: '2026-11-18T00:00:00.000Z'
+          }
+        }
+      })
+
+      expect(dashboard.completedTodayCount).toBe(
+        baselineDashboard.completedTodayCount + 1
+      )
+    })
   })
 
   test('applies status overrides to active and completed dashboard counts', () => {

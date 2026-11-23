@@ -218,6 +218,7 @@ describe('#homeController', () => {
     expect(response.payload).not.toContain('GB-IUU-2026-21001')
     expect(response.payload).not.toContain('GB-IUU-2026-21003')
     expect($('.inspection-dashboard__reference')).toHaveLength(42)
+    expect($('a.inspection-dashboard__reference')).toHaveLength(0)
     expect($('nav a[href="/about"]')).toHaveLength(0)
     expect($('nav a[href="/"]')).toHaveLength(0)
   })
@@ -253,6 +254,7 @@ describe('#homeController', () => {
     expect(response.payload).not.toContain('GB-IUU-2026-11002')
     expect(response.payload).not.toContain('GB-IUU-2026-21003')
     expect($('.inspection-dashboard__reference')).toHaveLength(42)
+    expect($('a.inspection-dashboard__reference')).toHaveLength(0)
     expect($('.govuk-tabs__list').text()).toContain('Active (38)')
     expect($('.govuk-tabs__list').text()).toContain('Completed (4)')
     expect(

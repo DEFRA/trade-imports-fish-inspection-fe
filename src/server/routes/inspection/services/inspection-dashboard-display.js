@@ -16,7 +16,9 @@ import {
 const DATE_INPUT_PATTERN = /^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})$/
 
 const toUtcDate = (date) =>
-  new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  )
 
 const formatShortDate = (date) =>
   new Intl.DateTimeFormat('en-GB', {
@@ -182,7 +184,6 @@ const buildOptionsForValues = (values, allOptionLabel) => [
 const mapConsignmentForView = (consignment) => ({
   id: consignment.id,
   reference: consignment.reference,
-  detailPath: `/inspection/${consignment.reference}`,
   originCountry: consignment.originCountry,
   importer: consignment.importer,
   estimatedArrivalDateDisplay: formatShortDate(consignment.estimatedArrival),

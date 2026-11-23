@@ -65,11 +65,16 @@ The combined export is ordered as follows:
 
 - Selected quick filters are combined with AND.
 - Each summary card links to the dashboard with its key toggled. The `awaiting-inspection` and `mismatches-flagged` cards have the `action` modifier.
-- The `mismatches-flagged` card also has `tabVariants` with a count and link for each tab.
+- The `mismatches-flagged` card also has `tabVariants` with a count and link for each tab; client JavaScript swaps the card's count and link when the tab changes.
+- An active card links to the same view with its key removed and shows "Remove filter" instead of "Apply filter".
 - Active filter chips are built per tab and each chip's link removes that one filter.
 
 ## Row display
 
 `mapConsignmentForView` produces each row, including a `detailPath` of `/inspection/<reference>`, short-date and weight (`kg`) formatting, a status label and tag class, risk flag labels, a documents-provided summary and a commodity and species summary grouped by commodity code.
+
+Each consignment summary has `commoditySpecies` (`commodityCode`, `species`, `weight` items). It uses the seed's `commoditySpecies` when present, otherwise a single item built from the seed's first commodity code, species and declared weight. `commodityCodes` is the de-duplicated list of codes.
+
+The row's `commoditySpeciesSummary` has `speciesCount`, `commodityCount`, `totalWeightDisplay`, `initialGroup` (the first commodity code group) and `remainingGroups`. The dashboard template renders a Goods table (code, species, weight) with the initial group, and a summary ("N commodity codes", "N species", "Total weight: ...") under the "Goods" label when there is more than one code or species. The commodity code cell spans the rows for its species. Remaining groups sit in a separate table body that is hidden by client JavaScript behind a "Show more" / "Show less" toggle button (see [Client assets](client-assets.md#javascript)). Without a summary the template shows separate Species, Commodity code and Weight rows.
 
 Arrival timing text is `Arrival today`, `Arrival in N day(s)` or `Overdue by N day(s)`. The tag is red below 3 days, yellow up to 8 days and green beyond that.

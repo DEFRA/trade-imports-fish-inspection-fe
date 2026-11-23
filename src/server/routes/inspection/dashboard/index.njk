@@ -10,8 +10,8 @@
           <span hidden data-summary-tab="{{ variant.tab }}" data-count="{{ variant.count }}" data-href="{{ variant.href }}"></span>
         {% endfor %}
         <p class="govuk-body-s govuk-!-margin-bottom-1">{{ card.label }}</p>
-        <p class="govuk-heading-l govuk-!-margin-bottom-1 inspection-dashboard__summary-value">{{ card.count }}</p>
-        <a class="govuk-link" href="{{ card.href }}"{% if card.active %} aria-current="true"{% endif %}>
+        <p class="govuk-heading-l govuk-!-margin-bottom-1 inspection-dashboard__summary-value" data-summary-count>{{ card.count }}</p>
+        <a class="govuk-link" href="{{ card.href }}" data-summary-link{% if card.active %} aria-current="true"{% endif %}>
           {% if card.active %}Remove filter{% else %}Apply filter{% endif %}
         </a>
       </section>
@@ -56,6 +56,8 @@
     {% for quickFilter in filters.quickFilters %}
       <input type="hidden" name="quick-filter" value="{{ quickFilter }}">
     {% endfor %}
+    <input type="hidden" name="sort-by" value="{{ filters.sortBy }}">
+    <input type="hidden" name="sort-order" value="{{ filters.sortOrder }}">
     <h3 class="govuk-heading-l govuk-!-margin-bottom-3">Search and filter consignments</h3>
     <div class="inspection-dashboard__filter-panel">
       <fieldset class="govuk-fieldset govuk-!-margin-bottom-4">
@@ -202,11 +204,11 @@
               </th>
             </tr>
           {% endif %}
-          <tr class="govuk-table__row inspection-dashboard__row inspection-dashboard__stacked-row" data-row-href="{{ basePath }}{{ consignment.detailPath }}" tabindex="0" role="link" aria-label="Open consignment {{ consignment.reference }}">
+          <tr class="govuk-table__row inspection-dashboard__stacked-row">
             <td class="govuk-table__cell inspection-dashboard__stacked-cell">
               <div class="inspection-dashboard__consignment">
                 <div class="inspection-dashboard__consignment-header">
-                  <a href="{{ basePath }}{{ consignment.detailPath }}" class="govuk-link govuk-!-font-weight-bold inspection-dashboard__reference">{{ consignment.reference }}</a>
+                  <strong class="govuk-!-font-weight-bold inspection-dashboard__reference">{{ consignment.reference }}</strong>
                   <ul class="inspection-dashboard__tag-list" aria-label="Status and risk indicators for {{ consignment.reference }}">
                     <li class="inspection-dashboard__status">
                       <strong class="govuk-tag {{ consignment.statusTagClass }}">{{ consignment.statusLabel }}</strong>
@@ -214,11 +216,9 @@
                     <li>
                       <strong class="govuk-tag {{ consignment.daysUntilArrivalTagClass }}{% if consignment.daysUntilArrival < 0 %} inspection-overdue-tag{% endif %}">{{ consignment.arrivalTimingLabel }}</strong>
                     </li>
-                    {% if consignment.reference == "GB-IUU-2026-11002" or consignment.reference == "GB-IUU-2026-11003" %}
-                      {% for riskFlag in consignment.riskFlags %}
-                        <li><strong class="govuk-tag inspection-dashboard__risk-tag">{{ riskFlag.text }}</strong></li>
-                      {% endfor %}
-                    {% endif %}
+                    {% for riskFlag in consignment.riskFlags %}
+                      <li><strong class="govuk-tag inspection-dashboard__risk-tag">{{ riskFlag.text }}</strong></li>
+                    {% endfor %}
                   </ul>
                 </div>
 
@@ -259,13 +259,13 @@
                             {{ renderGoodsRows([consignment.commoditySpeciesSummary.initialGroup]) }}
                           </tbody>
                           {% if consignment.commoditySpeciesSummary.remainingGroups.length %}
-                            <tbody id="goods-extra-{{ consignment.id }}" class="govuk-table__body" hidden>
+                            <tbody id="goods-extra-{{ consignment.id }}" class="govuk-table__body">
                               {{ renderGoodsRows(consignment.commoditySpeciesSummary.remainingGroups) }}
                             </tbody>
                           {% endif %}
                         </table>
                         {% if consignment.commoditySpeciesSummary.remainingGroups.length %}
-                          <button type="button" class="govuk-link inspection-dashboard__goods-toggle" aria-controls="goods-extra-{{ consignment.id }}" aria-expanded="false" data-goods-toggle>Show more</button>
+                          <button type="button" class="govuk-link inspection-dashboard__goods-toggle" aria-controls="goods-extra-{{ consignment.id }}" aria-expanded="false" data-goods-toggle hidden>Show more</button>
                         {% endif %}
                       </dd>
                     </div>
@@ -376,7 +376,7 @@
     </div>
 
     <p class="govuk-body govuk-!-margin-top-4">
-      <a href="{{ basePath }}/inspections/completed" class="govuk-link">View completed inspections</a>
+      <a href="{{ basePath }}/inspections?tab=completed#completed" class="govuk-link">View completed inspections</a>
     </p>
     <p class="govuk-body">
       <a href="{{ basePath }}/inspection-assumptions" class="govuk-link">Prototype assumptions and research questions</a>
