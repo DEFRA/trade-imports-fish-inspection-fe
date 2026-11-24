@@ -1,4 +1,5 @@
 import inert from '@hapi/inert'
+import Boom from '@hapi/boom'
 
 import { home } from '../routes/home/index.js'
 import { about } from '../routes/about/index.js'
@@ -19,6 +20,14 @@ export const router = {
 
       // Application specific routes, add your own routes here
       await server.register([home, about])
+
+      server.route({
+        method: '*',
+        path: '/{any*}',
+        handler() {
+          throw Boom.notFound()
+        }
+      })
 
       // Static assets
       if (!config.get('isProduction') && !config.get('isTest')) {

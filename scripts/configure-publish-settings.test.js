@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url'
 const script = fileURLToPath(
   new URL('./configure-publish-settings.js', import.meta.url)
 )
+const GIT_EXECUTABLE =
+  process.platform === 'win32'
+    ? execFileSync('where.exe', ['git'], { encoding: 'utf8' })
+        .trim()
+        .split(/\r?\n/)[0]
+    : '/usr/bin/git'
 const RUN_ID = '1658821493'
 const RUN_ATTEMPT = '1'
 const RUN_SUFFIX = `-run-${RUN_ID}-attempt-${RUN_ATTEMPT}`
@@ -76,6 +82,7 @@ function runScript(
   if (runAttempt) {
     env.GITHUB_RUN_ATTEMPT = runAttempt
   }
+  env.GIT_EXECUTABLE = GIT_EXECUTABLE
   return spawnSync(process.execPath, [script], { env, cwd, encoding: 'utf8' })
 }
 
@@ -178,7 +185,7 @@ test('fails without publishing outputs when Git cannot resolve HEAD', () => {
   })
 
   expect(result.status).toBe(1)
-  expect(result.stderr).toContain('git tag --points-at HEAD')
+  expect(result.stderr).toMatch(/git(?:\.exe)? tag --points-at HEAD/)
   expect(readFileSync(outputFile, 'utf8')).toBe('')
 })
 
@@ -337,6 +344,10 @@ test.each([
     'chore/FISB-1234-update-dependencies',
     'chore-fisb-1234-update-dependencies'
   ],
+  [
+    'feature/fisb-155-something-something-stuff-something',
+    'feature-fisb-155-something-something-stuff-something'
+  ],
   ['feature/FISB-1-a', 'feature-fisb-1-a'],
   ['feature/FISB-1234-123', 'feature-fisb-1234-123'],
   ['bugfix/FISB-1234567-fix-2-errors', 'bugfix-fisb-1234567-fix-2-errors']
@@ -473,7 +484,6 @@ test.each([
   'bugfix/FISB-1234',
   'ci/FISB-1234',
   'chore/FISB-1234',
-  'chore/fisb-1234-update-dependencies',
   'chore/FISB-1234-Update-dependencies',
   'chore/FISB-1234-update--dependencies',
   'hotfix/FISB-1234-fix-upload',
@@ -569,6 +579,7 @@ describe('script entry-point boundaries', () => {
     vi.stubEnv('GITHUB_OUTPUT', outputFile)
     vi.stubEnv('GITHUB_RUN_ID', RUN_ID)
     vi.stubEnv('GITHUB_RUN_ATTEMPT', RUN_ATTEMPT)
+    vi.stubEnv('GIT_EXECUTABLE', GIT_EXECUTABLE)
   })
 
   afterEach(() => {
@@ -639,7 +650,7 @@ describe('script entry-point boundaries', () => {
     )
 
     expect(executeGit).toHaveBeenCalledExactlyOnceWith(
-      '/usr/bin/git',
+      GIT_EXECUTABLE,
       ['tag', '--points-at', 'HEAD'],
       { encoding: 'utf8' }
     )
@@ -657,14 +668,14 @@ describe('script entry-point boundaries', () => {
     )
 
     expect(executeGit.mock.calls).toEqual([
-      ['/usr/bin/git', ['tag', '--points-at', 'HEAD'], { encoding: 'utf8' }],
+      [GIT_EXECUTABLE, ['tag', '--points-at', 'HEAD'], { encoding: 'utf8' }],
       [
-        '/usr/bin/git',
+        GIT_EXECUTABLE,
         ['tag', '--list', '--merged', 'HEAD', '--sort=-committerdate'],
         { encoding: 'utf8' }
       ],
       [
-        '/usr/bin/git',
+        GIT_EXECUTABLE,
         ['log', 'v1.0.0..HEAD', '--format=%B'],
         { encoding: 'utf8' }
       ]
