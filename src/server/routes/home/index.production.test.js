@@ -4,6 +4,7 @@ import { homeController, accountController } from './controller.js'
 
 vi.hoisted(() => {
   vi.stubEnv('NODE_ENV', 'production')
+  vi.stubEnv('ENVIRONMENT', 'prod')
   vi.stubEnv('AUTH_MODE', undefined)
   vi.stubEnv('SESSION_CACHE_ENGINE', 'memory')
   vi.stubEnv('LOG_ENABLED', 'false')

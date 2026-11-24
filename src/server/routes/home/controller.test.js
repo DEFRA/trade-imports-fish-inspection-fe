@@ -2,10 +2,11 @@ import { createServer } from '#/server/server.js'
 import { homeController } from './controller.js'
 import * as cheerio from 'cheerio'
 
-// Exercise the production build as it runs in the private demo.
+// CDP Testing runs a production build without a service-specific auth override.
 vi.hoisted(() => {
   vi.stubEnv('NODE_ENV', 'production')
-  vi.stubEnv('AUTH_MODE', 'mock')
+  vi.stubEnv('ENVIRONMENT', 'test')
+  vi.stubEnv('AUTH_MODE', undefined)
   vi.stubEnv('SESSION_CACHE_ENGINE', 'memory')
   vi.stubEnv('LOG_ENABLED', 'false')
 })
@@ -112,20 +113,38 @@ describe('#homeController', () => {
     expect(response.headers.location).toBe('/mock-auth')
   })
 
-  test('shows a 403 Forbidden page when a non-PHA user signs in', async () => {
-    const { response: signInResponse, cookie } = await signInAs('non-pha-test')
-    const response = await server.inject({
-      method: 'GET',
-      url: '/inspections',
-      headers: { cookie }
-    })
-    const $ = cheerio.load(signInResponse.payload)
-
-    expect(signInResponse.statusCode).toBe(403)
-    expect($('h1').text()).toContain('403')
-    expect(response.statusCode).toBe(302)
-    expect(response.headers.location).toBe('/mock-auth')
+  test('offers the two port users, importer and guest on CDP Testing', async () => {
+    const picker = await server.inject('/mock-auth')
+    expect(picker.statusCode).toBe(200)
+    const $ = cheerio.load(picker.payload)
+    const choices = $('input[name="mockUser"]')
+      .map((_, input) => $(input).val())
+      .get()
+    expect(choices.sort()).toEqual([
+      'dover-test',
+      'felixstowe-test',
+      'guest-test',
+      'non-pha-test'
+    ])
   })
+
+  test.each(['non-pha-test', 'guest-test'])(
+    'denies dashboard access to %s',
+    async (mockUser) => {
+      const { response: signInResponse, cookie } = await signInAs(mockUser)
+      const response = await server.inject({
+        method: 'GET',
+        url: '/inspections',
+        headers: { cookie }
+      })
+      const $ = cheerio.load(signInResponse.payload)
+
+      expect(signInResponse.statusCode).toBe(403)
+      expect($('h1').text()).toContain('403')
+      expect(response.statusCode).toBe(302)
+      expect(response.headers.location).toBe('/mock-auth')
+    }
+  )
 
   test('shows account information for the signed-in user', async () => {
     const { cookie } = await signInAs('felixstowe-test')

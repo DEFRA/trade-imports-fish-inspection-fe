@@ -21,9 +21,11 @@ Defaults marked "production" depend on `NODE_ENV === 'production'`.
 
 ## Authentication mode
 
-| Key        | Environment variable | Default    | Notes                                                                                                 |
-| ---------- | -------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
-| `authMode` | `AUTH_MODE`          | `disabled` | `disabled` or `mock`. `mock` enables the fictional user picker; see [routes](routes.md#mock-sign-in). |
+| Key        | Environment variable | Default                      | Notes                                                                                                 |
+| ---------- | -------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `authMode` | `AUTH_MODE`          | `mock` or `disabled` (below) | `disabled` or `mock`. `mock` enables the fictional user picker; see [routes](routes.md#mock-sign-in). |
+
+The default is `mock` when `ENVIRONMENT` is `dev`, `test`, `perf-test` or `ext-test`, otherwise `disabled`. `AUTH_MODE` overrides it, so `AUTH_MODE=disabled` turns the picker off in `ext-test`.
 
 ## Logging
 

@@ -21,6 +21,12 @@ const mockUsers = [
     roles: ['IMPORTER'],
     organisationId: 'TEST-IMPORTER',
     organisationName: 'Non-Port Health Authority User'
+  },
+  {
+    id: 'guest-test',
+    name: 'Guest',
+    roles: ['GUEST'],
+    organisationName: 'No organisation'
   }
 ]
 
