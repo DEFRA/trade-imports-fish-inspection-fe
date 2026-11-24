@@ -19,6 +19,12 @@ Defaults marked "production" depend on `NODE_ENV === 'production'`.
 
 `isProduction`, `isDevelopment`, and `isTest` are derived from `NODE_ENV`.
 
+## Authentication mode
+
+| Key        | Environment variable | Default    | Notes                                                                                                 |
+| ---------- | -------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| `authMode` | `AUTH_MODE`          | `disabled` | `disabled` or `mock`. `mock` enables the fictional user picker; see [routes](routes.md#mock-sign-in). |
+
 ## Logging
 
 | Key           | Environment variable | Default                                                | Notes                           |

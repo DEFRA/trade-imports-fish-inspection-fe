@@ -2,6 +2,14 @@ import { createServer } from '#/server/server.js'
 import { homeController } from './controller.js'
 import * as cheerio from 'cheerio'
 
+// Exercise the production build as it runs in the private demo.
+vi.hoisted(() => {
+  vi.stubEnv('NODE_ENV', 'production')
+  vi.stubEnv('AUTH_MODE', 'mock')
+  vi.stubEnv('SESSION_CACHE_ENGINE', 'memory')
+  vi.stubEnv('LOG_ENABLED', 'false')
+})
+
 describe('#homeController', () => {
   let server
 
@@ -59,6 +67,7 @@ describe('#homeController', () => {
 
   afterAll(async () => {
     await server.stop({ timeout: 0 })
+    vi.unstubAllEnvs()
   })
 
   test('redirects the root route to the dashboard route', async () => {
@@ -141,8 +150,8 @@ describe('#homeController', () => {
     expect(response.headers.location).toBe('/mock-auth')
   })
 
-  test('redirects a PHA user without a port to sign-in', () => {
-    const redirect = vi.fn()
+  test('denies a PHA session without an assigned port', () => {
+    const code = vi.fn()
 
     homeController.handler(
       {
@@ -150,10 +159,35 @@ describe('#homeController', () => {
           get: () => ({ roles: ['PHA'] })
         }
       },
-      { redirect }
+      { view: () => ({ code }) }
     )
 
-    expect(redirect).toHaveBeenCalledWith('/mock-auth')
+    expect(code).toHaveBeenCalledWith(403)
+  })
+
+  test('selecting a non-PHA user removes previous PHA access', async () => {
+    const { cookie, response: signedIn } = await signInAs('dover-test')
+    const picker = await server.inject({
+      url: '/mock-auth',
+      headers: { cookie }
+    })
+    const $ = cheerio.load(picker.payload)
+    const denied = await server.inject({
+      method: 'POST',
+      url: '/mock-auth',
+      headers: { cookie },
+      payload: {
+        mockUser: 'non-pha-test',
+        crumb: $('input[name="crumb"]').val()
+      }
+    })
+    expect(denied.statusCode).toBe(403)
+    const dashboard = await server.inject({
+      url: '/inspections',
+      headers: { cookie: cookiesFor(signedIn, denied) }
+    })
+    expect(dashboard.statusCode).toBe(302)
+    expect(dashboard.headers.location).toBe('/mock-auth')
   })
 
   test('rejects an unknown mock user during sign-in', async () => {

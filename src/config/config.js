@@ -72,6 +72,12 @@ export const config = convict({
     format: Boolean,
     default: isTest
   },
+  authMode: {
+    doc: 'Use the fictional user picker only in a private demo',
+    format: ['disabled', 'mock'],
+    default: 'disabled',
+    env: 'AUTH_MODE'
+  },
   log: {
     enabled: {
       doc: 'Is logging enabled',

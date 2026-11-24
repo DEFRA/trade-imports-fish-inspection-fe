@@ -2,13 +2,12 @@ import {
   homeController,
   accountController,
   signOutController,
-  mockAuthController
+  mockAuthController,
+  mockAuthEnabled
 } from './controller.js'
-import { config } from '#/config/config.js'
 
-const mockAuthRoutes = config.get('isProduction')
-  ? []
-  : [
+const mockAuthRoutes = mockAuthEnabled
+  ? [
       {
         method: 'GET',
         path: '/mock-auth',
@@ -20,6 +19,7 @@ const mockAuthRoutes = config.get('isProduction')
         ...mockAuthController.login
       }
     ]
+  : []
 
 /**
  * Sets up the routes used in the home page.

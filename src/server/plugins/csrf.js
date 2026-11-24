@@ -23,9 +23,7 @@ export const csrf = {
   plugin: Crumb,
   options: {
     cookieOptions: {
-      // Only set Secure flag in production (HTTPS).
-      // In development (HTTP), Secure cookies won't be sent.
-      isSecure: config.get('isProduction')
+      isSecure: config.get('session.cookie.secure')
     }
   }
 }

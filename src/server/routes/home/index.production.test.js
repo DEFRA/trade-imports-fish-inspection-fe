@@ -1,34 +1,41 @@
 import { vi } from 'vitest'
+import { createServer } from '#/server/server.js'
+import { homeController, accountController } from './controller.js'
 
-afterEach(() => {
-  vi.doUnmock('#/config/config.js')
-  vi.resetModules()
+vi.hoisted(() => {
+  vi.stubEnv('NODE_ENV', 'production')
+  vi.stubEnv('AUTH_MODE', undefined)
+  vi.stubEnv('SESSION_CACHE_ENGINE', 'memory')
+  vi.stubEnv('LOG_ENABLED', 'false')
 })
 
-test('does not register or serve mock authentication in production', async () => {
-  vi.doMock('#/config/config.js', () => ({
-    config: {
-      get: () => true
-    }
-  }))
+let server
 
-  const [{ home }, { mockAuthController }] = await Promise.all([
-    import('./index.js'),
-    import('./controller.js')
-  ])
-  const routes = []
-  home.plugin.register({
-    route: (registeredRoutes) => routes.push(...registeredRoutes)
-  })
+beforeAll(async () => {
+  server = await createServer()
+  await server.initialize()
+})
 
-  expect(routes.map(({ path }) => path)).not.toContain('/mock-auth')
+afterAll(async () => {
+  await server?.stop({ timeout: 0 })
+  vi.unstubAllEnvs()
+})
 
-  const response = { code: vi.fn().mockReturnThis() }
-  const h = { response: vi.fn(() => response) }
+test('without opt-in, protected pages deny access instead of redirecting to a missing picker', async () => {
+  expect(server.table().some(({ path }) => path === '/mock-auth')).toBe(false)
+  expect((await server.inject('/mock-auth')).statusCode).toBe(404)
+  for (const url of ['/inspections', '/account']) {
+    const response = await server.inject(url)
+    expect(response.statusCode).toBe(403)
+    expect(response.payload).toContain('sign-in is not available')
+  }
+})
 
-  expect(mockAuthController.select.handler({}, h)).toBe(response)
-  expect(mockAuthController.login.handler({}, h)).toBe(response)
-  expect(h.response).toHaveBeenCalledTimes(2)
-  expect(response.code).toHaveBeenNthCalledWith(1, 404)
-  expect(response.code).toHaveBeenNthCalledWith(2, 404)
+test('turning off the picker also disables previously signed-in PHA sessions', () => {
+  const request = { yar: { get: () => ({ roles: ['PHA'], portId: 'DOVER' }) } }
+  for (const controller of [homeController, accountController]) {
+    const code = vi.fn()
+    controller.handler(request, { view: () => ({ code }) })
+    expect(code).toHaveBeenCalledWith(403)
+  }
 })

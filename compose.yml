@@ -41,7 +41,7 @@ services:
   your-frontend:
     build: ./
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     links:
       - 'floci:floci'
       - 'redis:redis'
@@ -55,6 +55,7 @@ services:
     environment:
       PORT: 3000
       NODE_ENV: production
+      AUTH_MODE: mock
       REDIS_HOST: redis
       LOG_FORMAT: pino-pretty
       SESSION_COOKIE_SECURE: false
