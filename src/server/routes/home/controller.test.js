@@ -113,7 +113,7 @@ describe('#homeController', () => {
     expect(response.headers.location).toBe('/mock-auth')
   })
 
-  test('offers the two port users, importer and guest on CDP Testing', async () => {
+  test('offers the two port users and importer on CDP Testing', async () => {
     const picker = await server.inject('/mock-auth')
     expect(picker.statusCode).toBe(200)
     const $ = cheerio.load(picker.payload)
@@ -123,28 +123,25 @@ describe('#homeController', () => {
     expect(choices.sort()).toEqual([
       'dover-test',
       'felixstowe-test',
-      'guest-test',
       'non-pha-test'
     ])
   })
 
-  test.each(['non-pha-test', 'guest-test'])(
-    'denies dashboard access to %s',
-    async (mockUser) => {
-      const { response: signInResponse, cookie } = await signInAs(mockUser)
-      const response = await server.inject({
-        method: 'GET',
-        url: '/inspections',
-        headers: { cookie }
-      })
-      const $ = cheerio.load(signInResponse.payload)
+  test('denies dashboard access to non-pha-test', async () => {
+    const mockUser = 'non-pha-test'
+    const { response: signInResponse, cookie } = await signInAs(mockUser)
+    const response = await server.inject({
+      method: 'GET',
+      url: '/inspections',
+      headers: { cookie }
+    })
+    const $ = cheerio.load(signInResponse.payload)
 
-      expect(signInResponse.statusCode).toBe(403)
-      expect($('h1').text()).toContain('403')
-      expect(response.statusCode).toBe(302)
-      expect(response.headers.location).toBe('/mock-auth')
-    }
-  )
+    expect(signInResponse.statusCode).toBe(403)
+    expect($('h1').text()).toContain('403')
+    expect(response.statusCode).toBe(302)
+    expect(response.headers.location).toBe('/mock-auth')
+  })
 
   test('shows account information for the signed-in user', async () => {
     const { cookie } = await signInAs('felixstowe-test')
