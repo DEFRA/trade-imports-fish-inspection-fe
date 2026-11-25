@@ -1,4 +1,6 @@
+import Boom from '@hapi/boom'
 import { buildInspectionDashboardViewModel } from '../inspection/services/inspection-dashboard-service.js'
+import { buildInspectionConsignmentViewModel } from '../inspection/services/inspection-consignment-service.js'
 import { findMockUser, mockUsers } from '../inspection/mock-users.js'
 import { config } from '#/config/config.js'
 import { statusCodes } from '#/server/common/constants/status-codes.js'
@@ -28,6 +30,30 @@ export const homeController = {
       ...buildInspectionDashboardViewModel(user.portId, {
         query: request.query
       })
+    })
+  }
+}
+
+export const consignmentController = {
+  handler(request, h) {
+    const user = request.yar.get('mock-user')
+    if (!user?.roles?.includes('PHA') || !user.portId) {
+      return h.redirect(mockAuthPath)
+    }
+
+    const consignment = buildInspectionConsignmentViewModel(
+      user.portId,
+      request.params.reference
+    )
+    if (!consignment) {
+      throw Boom.notFound()
+    }
+
+    return h.view('inspection/consignment', {
+      pageTitle: `Consignment ${consignment.reference}`,
+      basePath: '',
+      user,
+      consignment
     })
   }
 }

@@ -21,7 +21,13 @@ const appendQueryValue = (query, key, value) => {
   }
 }
 
-const buildDashboardHref = (filters, basePath, tab, overrides = {}) => {
+const buildDashboardHref = (
+  filters,
+  basePath,
+  tab,
+  overrides = {},
+  fragment = tab
+) => {
   const query = new URLSearchParams({ tab })
   const values = {
     'quick-filter': filters.quickFilters,
@@ -44,7 +50,7 @@ const buildDashboardHref = (filters, basePath, tab, overrides = {}) => {
     appendQueryValue(query, key, value)
   })
 
-  return `${basePath}/inspections?${query.toString()}#${tab}`
+  return `${basePath}/inspections?${query.toString()}#${fragment}`
 }
 
 const getSummaryCount = (consignments, group, tab) =>
@@ -173,4 +179,4 @@ const getActiveFilterChips = (filters, basePath, tab) => {
   return chips
 }
 
-export { getActiveFilterChips, getSummaryCards }
+export { buildDashboardHref, getActiveFilterChips, getSummaryCards }

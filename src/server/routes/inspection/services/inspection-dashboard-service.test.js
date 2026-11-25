@@ -42,8 +42,8 @@ describe('inspection dashboard view model', () => {
       query: {
         tab: 'active',
         search: 'GB-IUU-2026-11002',
-        'filter-origin': 'France',
         'filter-status': 'REQUIRES_DOCUMENT_CHECK',
+        'filter-origin': 'France',
         'filter-risk-indicator': 'WEIGHT_MISMATCH',
         'filter-arrival-from': '2026-11-17',
         'filter-arrival-to': '2026-11-17',
@@ -76,6 +76,35 @@ describe('inspection dashboard view model', () => {
     expect(searchChipUrl.searchParams.get('filter-status')).toBe(
       'REQUIRES_DOCUMENT_CHECK'
     )
+  })
+
+  test.each([
+    ['importer', 'importer'],
+    ['status', 'statusLabel']
+  ])('groups rows when sorting by %s', (sortBy, groupField) => {
+    const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
+      today,
+      query: { 'sort-by': sortBy }
+    })
+    const rows = dashboard.active.rows
+    let previousGroup
+
+    for (const row of rows) {
+      const currentGroup = row[groupField]
+      expect(row.groupHeading).toBe(
+        currentGroup === previousGroup ? undefined : currentGroup
+      )
+      previousGroup = currentGroup
+    }
+  })
+
+  test('does not group rows when sorting by consignment reference', () => {
+    const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
+      today,
+      query: { 'sort-by': 'reference' }
+    })
+
+    expect(dashboard.active.rows.every((row) => !row.groupHeading)).toBe(true)
   })
 
   test('provides navigable tab variants and a removable chip for mismatches', () => {
@@ -200,5 +229,49 @@ describe('inspection dashboard view model', () => {
         pageCount: 0
       }
     })
+  })
+
+  test('shows ten notifications initially and keeps the selected results when showing more', () => {
+    const firstPage = buildInspectionDashboardViewModel('FELIXSTOWE', {
+      today,
+      basePath: '/trade',
+      query: {
+        search: 'GB-IUU-2026-110',
+        'filter-arrival-from': '2026-01-01',
+        'sort-by': 'reference',
+        'sort-order': 'desc'
+      }
+    })
+    const nextPage = buildInspectionDashboardViewModel('FELIXSTOWE', {
+      today,
+      basePath: '/trade',
+      query: {
+        search: 'GB-IUU-2026-110',
+        'filter-arrival-from': '2026-01-01',
+        'sort-by': 'reference',
+        'sort-order': 'desc',
+        page: '2'
+      }
+    })
+
+    expect(firstPage.active.rows).toHaveLength(10)
+    expect(nextPage.active.rows).toHaveLength(20)
+    expect(
+      nextPage.active.rows.slice(10).map(({ reference }) => reference)
+    ).not.toEqual(firstPage.active.rows.map(({ reference }) => reference))
+    expect(nextPage.active.pagination.nextHref).toContain(
+      'search=GB-IUU-2026-110'
+    )
+    expect(nextPage.active.pagination.nextHref).toContain(
+      'filter-arrival-from=2026-01-01'
+    )
+    expect(nextPage.active.pagination.showLessHref).toContain(
+      'page=1#active-first-batch'
+    )
+    expect(nextPage.active.pagination.nextHref).toContain('sort-by=reference')
+    expect(nextPage.active.pagination.nextHref).toContain('sort-order=desc')
+    expect(nextPage.active.pagination.nextHref).toContain(
+      'page=3#active-next-batch'
+    )
   })
 })

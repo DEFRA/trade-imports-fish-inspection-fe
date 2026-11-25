@@ -17,7 +17,22 @@ const felixstoweConsignmentSeeds = [
     originCountry: 'France',
     arrivalOffsetDays: -1,
     arrivalTime: '9:00am',
-    commodityCodes: ['030343'],
+    vesselName: 'PENDRUC',
+    imoNumber: '9741102',
+    containerNumber: 'MSCU2205101',
+    commodityCodes: ['030343', '03048720'],
+    commoditySpecies: [
+      {
+        commodityCode: '030343',
+        species: 'Skipjack tuna',
+        weight: '62,000 kg'
+      },
+      {
+        commodityCode: '03048720',
+        species: 'Yellowfin tuna',
+        weight: '56,000 kg'
+      }
+    ],
     species: 'Skipjack tuna (Katsuwonus pelamis)',
     declaredWeightKg: 118000,
     catchCertificateCount: 1,
@@ -25,6 +40,22 @@ const felixstoweConsignmentSeeds = [
     nmdCount: 0,
     additionalDocumentCount: 0,
     status: 'REQUIRES_DOCUMENT_CHECK',
+    recentChanges: [
+      {
+        label: 'Inspector status changed to Requires document check',
+        actor: 'Port Health Authority',
+        occurredAt: '2026-10-27T14:01:00Z',
+        description:
+          'The notification is ready for an inspector to review the supporting documents.'
+      },
+      {
+        label: 'Supporting documents received',
+        actor: 'Importer',
+        occurredAt: '2026-10-26T11:42:00Z',
+        description:
+          'Catch certificate documents were added to the notification.'
+      }
+    ],
     riskFlags: [
       'WEIGHT_MISMATCH',
       'MISSING_EVIDENCE',
@@ -43,7 +74,24 @@ const felixstoweConsignmentSeeds = [
     port: 'Grimsby',
     containerNumber: 'MSCU1000030',
     vesselName: 'Multiple vessels',
-    commodityCodes: ['030343'],
+    commodityCodes: ['030343', '03048720', '16041416'],
+    commoditySpecies: [
+      {
+        commodityCode: '030343',
+        species: 'Skipjack tuna',
+        weight: '120,000 kg'
+      },
+      {
+        commodityCode: '03048720',
+        species: 'Yellowfin tuna',
+        weight: '120,000 kg'
+      },
+      {
+        commodityCode: '16041416',
+        species: 'Bigeye tuna',
+        weight: '120,000 kg'
+      }
+    ],
     species: 'Skipjack Tuna (Katsuwonus pelamis)',
     declaredWeightKg: 360000,
     catchCertificateCount: 4,
@@ -51,6 +99,21 @@ const felixstoweConsignmentSeeds = [
     nmdCount: 2,
     additionalDocumentCount: 2,
     status: 'REQUIRES_DOCUMENT_CHECK',
+    recentChanges: [
+      {
+        label: 'Supporting documents reviewed',
+        actor: 'Port Health Authority',
+        occurredAt: '2026-10-26T10:15:00Z',
+        description:
+          'The submitted documents are being checked by an inspector.'
+      },
+      {
+        label: 'Notification submitted',
+        actor: NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
+        occurredAt: '2026-10-25T09:30:00Z',
+        description: 'The importer submitted the notification for review.'
+      }
+    ],
     riskFlags: ['WEIGHT_MISMATCH', 'MISSING_EVIDENCE'],
     riskNotes: '1 catch certificate not accounted for',
     warningText:
@@ -68,7 +131,29 @@ const felixstoweConsignmentSeeds = [
     port: 'Grimsby',
     containerNumber: 'MSCU1000333',
     vesselName: 'BERNICA',
-    commodityCodes: ['030343'],
+    commodityCodes: ['030343', '03048720', '16041416', '03047400'],
+    commoditySpecies: [
+      {
+        commodityCode: '030343',
+        species: 'Skipjack tuna',
+        weight: '48,000 kg'
+      },
+      {
+        commodityCode: '03048720',
+        species: 'Yellowfin tuna',
+        weight: '48,000 kg'
+      },
+      {
+        commodityCode: '16041416',
+        species: 'Bigeye tuna',
+        weight: '48,000 kg'
+      },
+      {
+        commodityCode: '03047400',
+        species: 'Hake',
+        weight: '31,564 kg'
+      }
+    ],
     species: 'Skipjack Tuna (Katsuwonus pelamis)',
     declaredWeightKg: 175564,
     catchCertificateCount: 1,
@@ -86,7 +171,19 @@ const felixstoweConsignmentSeeds = [
     originCountry: 'Spain',
     arrivalOffsetDays: 5,
     arrivalTime: '8:30am',
-    commodityCodes: ['03048720'],
+    commodityCodes: ['03048720', '16041416'],
+    commoditySpecies: [
+      {
+        commodityCode: '03048720',
+        species: 'Bluefin tuna',
+        weight: '4,850 kg'
+      },
+      {
+        commodityCode: '16041416',
+        species: 'Albacore tuna',
+        weight: '4,850 kg'
+      }
+    ],
     species: 'Bluefin tuna loins',
     declaredWeightKg: 9700,
     catchCertificateCount: 2,
@@ -103,7 +200,24 @@ const felixstoweConsignmentSeeds = [
     originCountry: 'Ecuador',
     arrivalOffsetDays: 6,
     arrivalTime: '4:20pm',
-    commodityCodes: ['16041416'],
+    commodityCodes: ['16041416', '03047400', '03038955'],
+    commoditySpecies: [
+      {
+        commodityCode: '16041416',
+        species: 'Skipjack tuna',
+        weight: '1,400 kg'
+      },
+      {
+        commodityCode: '03047400',
+        species: 'Hake',
+        weight: '1,400 kg'
+      },
+      {
+        commodityCode: '03038955',
+        species: 'Swordfish',
+        weight: '1,400 kg'
+      }
+    ],
     species: 'Skipjack tuna (SKJ)',
     declaredWeightKg: 4200,
     catchCertificateCount: 2,

@@ -160,10 +160,12 @@ const buildCommoditySpeciesSummary = (consignment) => {
 
 const buildStatusOptions = () => [
   { value: ALL_FILTER_VALUE, text: 'All statuses' },
-  ...STATUS_CODES.map((statusCode) => ({
-    value: statusCode,
-    text: STATUS_LABELS[statusCode]
-  }))
+  ...STATUS_CODES.filter((statusCode) => statusCode !== 'COMPLETED').map(
+    (statusCode) => ({
+      value: statusCode,
+      text: STATUS_LABELS[statusCode]
+    })
+  )
 ]
 
 const buildRiskOptions = () => [

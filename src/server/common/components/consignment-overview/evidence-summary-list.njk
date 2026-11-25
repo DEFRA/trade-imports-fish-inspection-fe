@@ -1,0 +1,10 @@
+{% macro renderEvidenceSummaryList(rows) %}
+  <dl class="govuk-summary-list">
+    {% for row in rows %}
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">{{ row.type }} ({{ row.count }})</dt>
+        <dd class="govuk-summary-list__value">{{ row.details }}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+{% endmacro %}

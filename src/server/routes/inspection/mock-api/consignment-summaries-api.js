@@ -208,6 +208,7 @@ const buildConsignmentSummary = (seed, startOfToday) => {
     id: seed.id,
     reference: seed.reference,
     importer: seed.importer,
+    importerEori: seed.importerEori,
     originCountry: seed.originCountry,
     estimatedArrival,
     completedAt,
@@ -232,9 +233,11 @@ const buildConsignmentSummary = (seed, startOfToday) => {
     riskNotes: seed.riskNotes || '',
     warningText: seed.warningText,
     assessmentSummary: seed.assessmentSummary,
+    recentChanges: seed.recentChanges || [],
     port: seed.port,
     containerNumber: seed.containerNumber,
-    vesselName: seed.vesselName
+    vesselName: seed.vesselName,
+    imoNumber: seed.imoNumber
   }
 }
 

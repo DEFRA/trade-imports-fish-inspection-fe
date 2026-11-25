@@ -21,9 +21,12 @@ import {
   toUtcDate
 } from './inspection-dashboard-display.js'
 import {
+  buildDashboardHref,
   getActiveFilterChips,
   getSummaryCards
 } from './inspection-dashboard-links.js'
+
+const NOTIFICATION_PAGE_SIZE = 10
 
 const normalizeString = (value) => String(value || '').trim()
 
@@ -125,8 +128,10 @@ const compareBySortField = (first, second, sortBy) => {
   }
 
   if (sortBy === 'status') {
-    return STATUS_LABELS[first.status].localeCompare(
-      STATUS_LABELS[second.status],
+    return (
+      first.statusLabelOverride || STATUS_LABELS[first.status]
+    ).localeCompare(
+      second.statusLabelOverride || STATUS_LABELS[second.status],
       'en-GB'
     )
   }
@@ -155,36 +160,93 @@ const sortConsignments = (consignments, filters) => {
   return sortedConsignments
 }
 
-const buildTabViewModel = (consignments, filters) => {
+const getGroupDetails = (row, sortBy) => {
+  if (sortBy === DEFAULT_SORT_BY) {
+    return {
+      key: row.estimatedArrivalIsoDate,
+      heading: formatArrivalDateHeading(row.estimatedArrivalIsoDate)
+    }
+  }
+
+  if (sortBy === 'importer') {
+    return { key: row.importer, heading: row.importer }
+  }
+
+  if (sortBy === 'status') {
+    return { key: row.statusLabel, heading: row.statusLabel }
+  }
+
+  return null
+}
+
+const addGroupHeadings = (rows, sortBy) => {
+  let previousGroupKey
+
+  for (const row of rows) {
+    const group = getGroupDetails(row, sortBy)
+    if (group && group.key !== previousGroupKey) {
+      row.groupHeading = group.heading
+    }
+    previousGroupKey = group?.key
+  }
+}
+
+const buildTabViewModel = (
+  consignments,
+  filters,
+  requestedPage,
+  basePath,
+  tabId
+) => {
   const filteredConsignments = filterConsignments(consignments, filters)
   const sortedConsignments = sortConsignments(filteredConsignments, filters)
   const hasRows = sortedConsignments.length > 0
-  const rows = sortedConsignments.map(mapConsignmentForView)
+  const pageCount = Math.ceil(
+    sortedConsignments.length / NOTIFICATION_PAGE_SIZE
+  )
+  const currentPage = Math.min(requestedPage, Math.max(pageCount, 1))
+  const visibleCount = Math.min(
+    currentPage * NOTIFICATION_PAGE_SIZE,
+    sortedConsignments.length
+  )
+  const rows = sortedConsignments
+    .slice(0, visibleCount)
+    .map(mapConsignmentForView)
 
-  if (filters.sortBy === DEFAULT_SORT_BY) {
-    let previousArrivalDate
-    for (const row of rows) {
-      if (row.estimatedArrivalIsoDate !== previousArrivalDate) {
-        row.arrivalDateHeading = formatArrivalDateHeading(
-          row.estimatedArrivalIsoDate
-        )
-        previousArrivalDate = row.estimatedArrivalIsoDate
-      }
-    }
-  }
+  addGroupHeadings(rows, filters.sortBy)
 
   return {
     rows,
     totalCount: consignments.length,
     filteredTotalCount: sortedConsignments.length,
     filteredStart: hasRows ? 1 : 0,
-    filteredEnd: sortedConsignments.length,
+    filteredEnd: visibleCount,
     pagination: {
-      currentPage: 1,
-      pageCount: hasRows ? 1 : 0,
-      pageLinks: [],
-      previousHref: '',
-      nextHref: ''
+      currentPage,
+      pageCount,
+      firstNewRowIndex: (currentPage - 1) * NOTIFICATION_PAGE_SIZE + 1,
+      firstRowAnchorId:
+        currentPage === 1 ? `${tabId}-first-batch` : `${tabId}-next-batch`,
+      nextHref:
+        currentPage < pageCount
+          ? buildDashboardHref(
+              filters,
+              basePath,
+              tabId,
+              { page: String(currentPage + 1) },
+              `${tabId}-next-batch`
+            )
+          : '',
+      showLessHref:
+        currentPage > 1
+          ? buildDashboardHref(
+              filters,
+              basePath,
+              tabId,
+              { page: '1' },
+              `${tabId}-first-batch`
+            )
+          : ''
     }
   }
 }
@@ -268,6 +330,10 @@ const buildInspectionDashboardViewModel = (
   { query = {}, today = new Date(), statusOverrides = {}, basePath = '' } = {}
 ) => {
   const filters = buildDashboardFilters(query)
+  const requestedPage = Math.max(
+    1,
+    Number.parseInt(normalizeString(query.page), 10) || 1
+  )
   const consignments = applyStatusOverrides(
     mockConsignmentSummariesApi.listConsignmentSummaries(portId, today),
     statusOverrides,
@@ -275,8 +341,20 @@ const buildInspectionDashboardViewModel = (
   )
   const { activeConsignments, completedConsignments } =
     splitConsignmentsByStatus(consignments)
-  const active = buildTabViewModel(activeConsignments, filters)
-  const completed = buildTabViewModel(completedConsignments, filters)
+  const active = buildTabViewModel(
+    activeConsignments,
+    filters,
+    requestedPage,
+    basePath,
+    ACTIVE_TAB
+  )
+  const completed = buildTabViewModel(
+    completedConsignments,
+    filters,
+    requestedPage,
+    basePath,
+    COMPLETED_TAB
+  )
   const completedTodayCount = consignments.filter(
     (consignment) =>
       consignment.status === 'COMPLETED' && consignment.isCompletedToday

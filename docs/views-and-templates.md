@@ -7,6 +7,7 @@ Pages are rendered with Nunjucks through `@hapi/vision`. The configuration is in
 - Nunjucks is configured with `autoescape: true`, `trimBlocks`, and `lstripBlocks`.
 - Template search paths:
   - `node_modules/govuk-frontend/dist/` (GOV.UK Frontend macros, for example `govuk/components/...`)
+  - `node_modules/@ministryofjustice/frontend/` (MoJ macros, for example `moj/components/timeline/macro.njk`)
   - `src/server/common/templates`
   - `src/server/common/components`
 - Vision looks up views in `src/server/routes`. A view name `home/index` resolves to `src/server/routes/home/index.njk`.
@@ -26,7 +27,7 @@ The cookie consent plugin adds `cookiesPolicy` and `currentPath` for each view. 
 ## Globals and filters
 
 - Globals: [globals.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/globals/globals.js) exports `govukRebrand` (`true`).
-- Filters: [filters.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/filters.js) exports `assign`, `formatDate` ([format-date.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/format-date.js)), and `formatCurrency` ([format-currency.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/format-currency.js)).
+- Filters: the MoJ Frontend filters from `@ministryofjustice/frontend/moj/filters/all.js` are registered, followed by the local filters in [filters.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/filters.js), which exports `assign`, `formatDate` ([format-date.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/format-date.js)), and `formatCurrency` ([format-currency.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/config/nunjucks/filters/format-currency.js)).
 
 ## Layout
 
@@ -43,6 +44,9 @@ Page views set `pageTitle`, which feeds the `<title>` as `pageTitle | serviceNam
 ## Components
 
 - [heading/macro.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/components/heading/macro.njk) provides `appHeading`, which is imported into the layout. Styles are in `_heading.scss`.
+- [consignment-overview/commodity-weight-comparison.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/components/consignment-overview/commodity-weight-comparison.njk) provides `renderCommodityWeightComparison(comparison, reference)`, a table of weights per commodity code and species, or a "No commodity weight comparisons available." message.
+- [consignment-overview/evidence-summary-list.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/components/consignment-overview/evidence-summary-list.njk) provides `renderEvidenceSummaryList(rows)`, a GOV.UK summary list of evidence types, counts and details.
+- [inspection-action-form/macro.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/common/components/inspection-action-form/macro.njk) provides `renderInspectionActionForm(basePath, reference, actionData, errorMap)`: a form that posts to `<basePath>/inspection/<reference>/action` with action radios (`inspection-action`), a conditional documentary check outcome for `issue-decision`, a notes textarea and a decision confirmation checkbox. The client behaviour is in [client assets](client-assets.md#javascript).
 - Route views (for example [inspection/dashboard/index.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/dashboard/index.njk)) extend the layout and render content in the `content` block.
 
 ## Error page

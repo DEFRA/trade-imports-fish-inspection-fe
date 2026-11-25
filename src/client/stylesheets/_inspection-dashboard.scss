@@ -167,9 +167,14 @@
 
 .inspection-dashboard__sort-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 270px));
+  grid-template-columns: repeat(2, minmax(0, 270px)) auto;
+  align-items: end;
   gap: 0 40px;
   margin-bottom: 24px;
+}
+
+.inspection-dashboard__sort-submit {
+  margin-bottom: 2px;
 }
 
 .inspection-dashboard__filter-grid > div,

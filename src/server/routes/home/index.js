@@ -1,5 +1,6 @@
 import {
   homeController,
+  consignmentController,
   accountController,
   signOutController,
   mockAuthController
@@ -42,6 +43,11 @@ export const home = {
           method: 'GET',
           path: '/inspections',
           ...homeController
+        },
+        {
+          method: 'GET',
+          path: '/inspection/{reference}',
+          ...consignmentController
         },
         {
           method: 'GET',

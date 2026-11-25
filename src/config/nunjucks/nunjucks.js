@@ -1,6 +1,7 @@
 import path from 'path'
 import nunjucks from 'nunjucks'
 import hapiVision from '@hapi/vision'
+import mojFiltersFactory from '@ministryofjustice/frontend/moj/filters/all.js'
 import { fileURLToPath } from 'node:url'
 
 import { config } from '../config.js'
@@ -12,6 +13,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 const nunjucksEnvironment = nunjucks.configure(
   [
     'node_modules/govuk-frontend/dist/',
+    'node_modules/@ministryofjustice/frontend/',
     path.resolve(dirname, '../../server/common/templates'),
     path.resolve(dirname, '../../server/common/components')
   ],
@@ -51,5 +53,9 @@ Object.entries(globals).forEach(([name, global]) => {
 })
 
 Object.entries(filters).forEach(([name, filter]) => {
+  nunjucksEnvironment.addFilter(name, filter)
+})
+
+Object.entries(mojFiltersFactory()).forEach(([name, filter]) => {
   nunjucksEnvironment.addFilter(name, filter)
 })
