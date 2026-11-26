@@ -54,6 +54,9 @@ export async function createServer() {
       strictHeader: false
     }
   })
+
+  server.ext('onPreResponse', catchAll)
+
   await server.register([
     requestLogger,
     requestTracing,
@@ -68,8 +71,6 @@ export async function createServer() {
     cookieConsent,
     router // Register all the controllers/routes defined in src/server/router.js
   ])
-
-  server.ext('onPreResponse', catchAll)
 
   return server
 }

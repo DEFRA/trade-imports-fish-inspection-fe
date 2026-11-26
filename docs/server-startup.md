@@ -41,5 +41,5 @@ After registration, `server.ext('onPreResponse', catchAll)` installs the error h
 
 ## Notes
 
-- The order matters for `onPreResponse` extensions. `cookieConsent` adds template context before `catchAll` runs for view responses.
+- The order matters for `onPreResponse` extensions. `catchAll` is installed first, so it turns error responses into `error/index` views before `cookieConsent` runs. `cookieConsent` therefore also adds template context to error pages, which keeps the user's consent state on them (see [cookie consent](cookie-consent.md)).
 - `secureContext` is always registered. `ENABLE_SECURE_CONTEXT` is defined in config, but how the plugin reads it is not verified here.

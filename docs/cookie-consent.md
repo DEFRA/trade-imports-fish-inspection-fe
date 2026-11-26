@@ -14,7 +14,7 @@ The service asks users whether they accept analytics cookies. Consent is stored 
 
 ## Template context
 
-[src/server/plugins/cookie-consent.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/cookie-consent.js) runs on `onPreResponse` for view responses (except 403). For each view it:
+[src/server/plugins/cookie-consent.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/plugins/cookie-consent.js) runs on `onPreResponse` for view responses, including error pages rendered by `catchAll` (see [server startup](server-startup.md)). For each view it:
 
 - Sets `Cache-Control: no-store` so pages are not kept in the back/forward cache.
 - Adds `cookiesPolicy` and `currentPath` to the template context.

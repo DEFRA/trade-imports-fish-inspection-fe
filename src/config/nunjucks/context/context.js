@@ -2,7 +2,6 @@ import path from 'node:path'
 import { readFileSync } from 'node:fs'
 
 import { config } from '#/config/config.js'
-import { buildNavigation } from './build-navigation.js'
 import { createLogger } from '#/server/common/helpers/logging/logger.js'
 
 const logger = createLogger()
@@ -19,7 +18,7 @@ if (!googleTagManagerKey && config.get('isProduction')) {
 
 let viteManifest
 
-export function context(request) {
+export function context() {
   if (config.get('isProduction') && !viteManifest) {
     try {
       viteManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
@@ -35,7 +34,6 @@ export function context(request) {
     cookieName: config.get('cookieConsent.name'),
     googleTagManagerKey,
     breadcrumbs: [],
-    navigation: buildNavigation(request),
     getAssetPath(asset) {
       if (!config.get('isProduction')) {
         return `${assetPath}/${asset}`

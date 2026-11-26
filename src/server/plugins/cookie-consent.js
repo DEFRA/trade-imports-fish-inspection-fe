@@ -18,14 +18,11 @@
 // but before it's sent to the client. By this point response.source.context
 // exists (for view responses), so we can safely inject template variables.
 
-import http2 from 'node:http2'
 import { config } from '#/config/config.js'
 import {
   getCurrentPolicy,
   removeAnalytics
 } from '#/server/common/helpers/cookie-policy-manager.js'
-
-const { constants: httpConstants } = http2
 
 const cookieNamePolicy = config.get('cookieConsent.name')
 const cookiePolicy = config.get('cookieConsent.policy')
@@ -39,11 +36,8 @@ export const cookieConsent = {
       server.state(cookieNamePolicy, cookiePolicy)
 
       server.ext('onPreResponse', (request, h) => {
-        const statusCode = request.response.statusCode
-
         if (
           request.response.variety === 'view' &&
-          statusCode !== httpConstants.HTTP_STATUS_FORBIDDEN &&
           request.response.source.context
         ) {
           // Prevent the browser from caching view responses or storing them
