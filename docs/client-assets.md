@@ -31,6 +31,8 @@ It also preserves the scroll position when an element with `data-inspection-sort
 
 For each `[data-goods-toggle]` button it hides the rows controlled by `aria-controls`, reveals the button, and toggles the rows and the button's `aria-expanded` and text (`Show more` / `Show less`) on click.
 
+When the URL hash matches an element with `data-results-tab` (the dashboard's `<tab>-results` heading), the hash is replaced with the tab id before `Tabs` is initialised so that the matching tab is selected. On the first `pageshow` the results heading is then focused and scrolled into view. See [Inspection dashboard](inspection-dashboard.md#links-and-anchors).
+
 It also updates the dashboard summary cards for the selected tab: for each `.inspection-dashboard__summary-card` it copies `data-count` and `data-href` from the matching `[data-summary-tab]` element into the card's `[data-summary-count]` and `[data-summary-link]`. This runs on load, on tab clicks and on `hashchange`. See [Inspection dashboard](inspection-dashboard.md#quick-filters-and-summary-cards).
 
 [cookies.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/cookies.js) implements consent handling. See [cookie consent](cookie-consent.md).

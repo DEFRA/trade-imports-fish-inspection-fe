@@ -34,7 +34,9 @@ const initializeApplication = async (
     goodsRows = {},
     summaryCards = [],
     tabs = [],
-    selectedTab = null
+    selectedTab = null,
+    hash = '#active',
+    resultsCounts = {}
   } = browserElements
   const sessionStorage = {
     getItem: vi.fn((key) => storedValues.get(key) ?? null),
@@ -52,12 +54,13 @@ const initializeApplication = async (
     addEventListener: vi.fn((event, listener) =>
       windowListeners.set(event, listener)
     ),
-    location: { hash: '#active' },
+    location: { hash },
+    history: { replaceState: vi.fn(), state: null },
     scrollTo,
     scrollY: 480
   })
   vi.stubGlobal('document', {
-    getElementById: vi.fn((id) => goodsRows[id]),
+    getElementById: vi.fn((id) => goodsRows[id] ?? resultsCounts[id]),
     querySelector: vi.fn(() => selectedTab),
     querySelectorAll: vi.fn((selector) => {
       const elements = {
@@ -141,6 +144,42 @@ describe('application browser initialization', () => {
 
     expect(sessionStorage.removeItem).not.toHaveBeenCalled()
     expect(requestAnimationFrame).not.toHaveBeenCalled()
+  })
+
+  test.each(['active', 'completed'])(
+    'focuses the %s results count after Apply',
+    async (tab) => {
+      const count = {
+        dataset: { resultsTab: tab },
+        focus: vi.fn(),
+        scrollIntoView: vi.fn()
+      }
+      const id = `${tab}-results`
+      const { windowListeners } = await initializeApplication(
+        null,
+        [],
+        {},
+        {
+          hash: `#${id}`,
+          resultsCounts: { [id]: count }
+        }
+      )
+
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        `#${tab}`
+      )
+      windowListeners.get('pageshow')()
+      expect(count.focus).toHaveBeenCalledOnce()
+      expect(count.scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+    }
+  )
+
+  test('does not move focus on an ordinary tab visit', async () => {
+    const { windowListeners } = await initializeApplication(null)
+    expect(windowListeners.has('pageshow')).toBe(false)
+    expect(window.history.replaceState).not.toHaveBeenCalled()
   })
 
   test('restores sorting when browser storage cannot clear the saved position', async () => {

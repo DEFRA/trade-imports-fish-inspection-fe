@@ -116,8 +116,8 @@ describe('inspection dashboard view model', () => {
       'active',
       'completed'
     ])
-    expect(mismatchCard.tabVariants[0].href).toContain('#active')
-    expect(mismatchCard.tabVariants[1].href).toContain('#completed')
+    expect(mismatchCard.tabVariants[0].href).toMatch(/#active$/)
+    expect(mismatchCard.tabVariants[1].href).toMatch(/#completed$/)
     expect(
       new URL(mismatchChip.href, 'http://example.test').searchParams.has(
         'quick-filter'
@@ -125,38 +125,82 @@ describe('inspection dashboard view model', () => {
     ).toBe(false)
   })
 
-  test('replaces status quick filters while retaining independent mismatch filters', () => {
+  test.each([
+    ['in-progress', 'active', 'filter-status=IN_PROGRESS'],
+    ['awaiting-inspection', 'active', 'quick-filter=awaiting-inspection'],
+    ['completed-today', 'completed', 'quick-filter=completed-today'],
+    ['mismatches-flagged', 'completed', 'quick-filter=mismatches-flagged']
+  ])(
+    'applying %s clears the previous filters and sort',
+    (key, tab, selection) => {
+      const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
+        today,
+        basePath: '/trade',
+        query: {
+          tab: 'completed',
+          'quick-filter':
+            key === 'mismatches-flagged'
+              ? 'awaiting-inspection'
+              : 'mismatches-flagged',
+          search: 'old search',
+          'filter-status': 'REQUIRES_DOCUMENT_CHECK',
+          'filter-origin': 'France',
+          'filter-risk-indicator': 'MISSING_EVIDENCE',
+          'filter-arrival-to': '2026-11-17',
+          'sort-by': 'reference',
+          'sort-order': 'desc'
+        }
+      })
+      const card = dashboard.summaryCards.find((item) => item.key === key)
+      expect(card.href).toBe(
+        `/trade/inspections?tab=${tab}&${selection}#${tab}-results`
+      )
+      for (const variant of card.tabVariants) {
+        expect(variant.href).toBe(
+          `/trade/inspections?tab=${variant.tab}&${selection}#${variant.tab}-results`
+        )
+      }
+      const applied = buildInspectionDashboardViewModel('FELIXSTOWE', {
+        today,
+        query: Object.fromEntries(
+          new URL(card.href, 'http://example.test').searchParams
+        )
+      })
+      expect(applied[tab].filteredTotalCount).toBe(card.count)
+      expect(applied.dashboardFilters.status).toBe(
+        key === 'in-progress' ? 'IN_PROGRESS' : '__all__'
+      )
+    }
+  )
+
+  test.each([
+    [{ 'quick-filter': 'in-progress' }, 'IN_PROGRESS'],
+    [
+      { 'quick-filter': 'in-progress', 'filter-status': 'IN_PROGRESS' },
+      'IN_PROGRESS'
+    ],
+    [
+      { 'quick-filter': 'in-progress', 'filter-status': 'REJECTED' },
+      'REJECTED'
+    ],
+    [
+      { 'quick-filter': 'awaiting-inspection', 'filter-status': 'REJECTED' },
+      'REJECTED'
+    ],
+    [
+      { 'quick-filter': 'completed-today', 'filter-status': 'REJECTED' },
+      'REJECTED'
+    ]
+  ])('resolves %o to one status filter', (query, status) => {
     const dashboard = buildInspectionDashboardViewModel('FELIXSTOWE', {
       today,
-      basePath: '/trade',
-      query: {
-        'quick-filter': ['in-progress', 'mismatches-flagged']
-      }
+      query
     })
-    const awaitingInspectionCard = dashboard.summaryCards.find(
-      ({ key }) => key === 'awaiting-inspection'
-    )
-    const completedTodayCard = dashboard.summaryCards.find(
-      ({ key }) => key === 'completed-today'
-    )
-    const awaitingInspectionUrl = new URL(
-      awaitingInspectionCard.href,
-      'http://example.test'
-    )
-    const completedTodayUrl = new URL(
-      completedTodayCard.href,
-      'http://example.test'
-    )
-
-    expect(awaitingInspectionUrl.searchParams.getAll('quick-filter')).toEqual([
-      'mismatches-flagged',
-      'awaiting-inspection'
-    ])
-    expect(completedTodayUrl.searchParams.get('tab')).toBe('completed')
-    expect(completedTodayUrl.searchParams.getAll('quick-filter')).toEqual([
-      'mismatches-flagged',
-      'completed-today'
-    ])
+    expect(dashboard.dashboardFilters).toMatchObject({
+      status,
+      quickFilters: []
+    })
+    expect(dashboard.activeFilterChipsByTab.active).toHaveLength(1)
   })
 
   test('ignores a calendar-invalid date filter instead of rolling it into another month', () => {

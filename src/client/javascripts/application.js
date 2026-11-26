@@ -79,7 +79,25 @@ createAll(Checkboxes)
 createAll(ErrorSummary)
 createAll(Radios)
 createAll(SkipLink)
+
+const resultsCount = document.getElementById(window.location.hash.slice(1))
+const resultsTab = resultsCount?.dataset.resultsTab
+if (resultsTab) {
+  // GOV.UK Tabs selects a panel by its hash. Consume the Apply target before setup.
+  window.history.replaceState(window.history.state, '', `#${resultsTab}`)
+}
 createAll(Tabs)
+
+if (resultsTab) {
+  window.addEventListener(
+    'pageshow',
+    () => {
+      resultsCount.focus({ preventScroll: true })
+      resultsCount.scrollIntoView({ block: 'start' })
+    },
+    { once: true }
+  )
+}
 
 const updateSummaryCards = (tab) => {
   if (tab !== 'active' && tab !== 'completed') {

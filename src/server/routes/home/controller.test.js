@@ -291,6 +291,85 @@ describe('#homeController', () => {
     )
   })
 
+  test('both filter panels search and clear on Active, but sort on their own tab', async () => {
+    const response = await getDashboardAs(
+      'felixstowe-test',
+      '/inspections?tab=completed&quick-filter=completed-today'
+    )
+    const $ = cheerio.load(response.payload)
+    for (const tab of ['active', 'completed']) {
+      const form = $(
+        `#${tab} form[aria-label="Search and filter consignments"]`
+      )
+      expect(form.attr('action')).toBe('/inspections#active-results')
+      expect(form.find('[name="tab"]').val()).toBe('active')
+      expect(form.find('[value="completed-today"]')).toHaveLength(0)
+      expect(form.find('option[value="COMPLETED"]')).toHaveLength(0)
+      expect(form.find('a:contains("Clear filters")').attr('href')).toBe(
+        '/inspections?tab=active#active'
+      )
+      const sort = $(`#${tab} [data-inspection-sort-form]`)
+      expect(sort.attr('action')).toBe(`/inspections#${tab}`)
+      expect(sort.find('[name="quick-filter"]').val()).toBe('completed-today')
+    }
+  })
+
+  test('keeps each results count focusable and immediately before its results table', async () => {
+    const response = await getDashboardAs(
+      'felixstowe-test',
+      '/inspections?search=GB-IUU-2026-11002'
+    )
+    const $ = cheerio.load(response.payload)
+    for (const [tab, expected] of [
+      ['active', 'Showing 1 result'],
+      ['completed', 'Showing 0 results']
+    ]) {
+      const count = $(`#${tab}-results`)
+      expect(count.text().trim()).toBe(expected)
+      expect(count.attr('tabindex')).toBe('-1')
+      expect(count.parent().next().is('table')).toBe(true)
+    }
+  })
+
+  test('the In progress card sets the editable form status without a second filter', async () => {
+    const { cookie } = await signInAs('felixstowe-test')
+    const loadDashboard = async (url) => {
+      const response = await server.inject({ url, headers: { cookie } })
+      expect(response.statusCode).toBe(200)
+      return cheerio.load(response.payload)
+    }
+    const before = await loadDashboard(
+      '/inspections?search=no-match&filter-origin=France'
+    )
+    const link = before(
+      '.inspection-dashboard__summary-card:contains("In progress") [data-summary-link]'
+    ).attr('href')
+    const $ = await loadDashboard(link.split('#')[0])
+    const form = $('#active form[aria-label="Search and filter consignments"]')
+
+    expect(form.find('[name="filter-status"]').val()).toBe('IN_PROGRESS')
+    expect(form.find('[name="search"]').val()).toBe('')
+    expect(form.find('[name="filter-origin"]').val()).toBe('__all__')
+    expect($('#active [name="quick-filter"]')).toHaveLength(0)
+    expect($('#active .inspection-dashboard__filter-chip')).toHaveLength(1)
+    expect($('#active .inspection-dashboard__filter-chip').text()).toContain(
+      'Status: In progress'
+    )
+    expect(
+      $(
+        '.inspection-dashboard__summary-card:contains("In progress") [data-summary-link]'
+      ).text()
+    ).toContain('Remove filter')
+
+    form.find('[name="filter-status"]').val('REQUIRES_DOCUMENT_CHECK')
+    const after = await loadDashboard(`/inspections?${form.serialize()}`)
+    const statuses = after('#active .inspection-dashboard__status')
+      .map((_, el) => after(el).text().trim())
+      .get()
+    expect(new Set(statuses)).toEqual(new Set(['Requires document check']))
+    expect(after('#active .inspection-dashboard__filter-chip')).toHaveLength(1)
+  })
+
   test('shows only submitted notifications and scoped counts for another PHA', async () => {
     const response = await getDashboardAs('dover-test')
     const $ = cheerio.load(response.payload)

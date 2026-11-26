@@ -9,7 +9,8 @@ import {
   SORT_OPTIONS,
   SORT_ORDER_OPTIONS,
   STATUS_LABELS,
-  hasEvidenceIssues
+  hasEvidenceIssues,
+  matchesQuickFilterGroup
 } from './inspection-dashboard-constants.js'
 import {
   buildOptionsForValues,
@@ -38,10 +39,20 @@ const buildDashboardFilters = (query = {}) => {
   const requestedQuickFilters = Array.isArray(query['quick-filter'])
     ? query['quick-filter']
     : [query['quick-filter']]
-  const quickFilters = QUICK_FILTER_GROUPS.map((group) => group.key).filter(
-    (key) =>
-      requestedQuickFilters.some((value) => normalizeString(value) === key)
+  const selectedGroups = QUICK_FILTER_GROUPS.filter(({ key }) =>
+    requestedQuickFilters.some((value) => normalizeString(value) === key)
   )
+  // Older card links used quick-filter=in-progress instead of the form status.
+  const status = normalizeSelectFilter(
+    query['filter-status'] ??
+      selectedGroups.find((group) => group.useFormStatus)?.status
+  )
+  const quickFilters = selectedGroups
+    .filter((group) => !group.useFormStatus)
+    .filter(
+      (group) => !group.status || matchesSelectedValue(status, group.status)
+    )
+    .map((group) => group.key)
   const sortBy = normalizeString(query['sort-by'])
   const sortOrder = normalizeString(query['sort-order'])
 
@@ -53,7 +64,7 @@ const buildDashboardFilters = (query = {}) => {
       getFilterValue(query, 'search-reference') ||
       getFilterValue(query, 'search-importer-name'),
     importer: normalizeSelectFilter(query['filter-importer']),
-    status: normalizeSelectFilter(query['filter-status']),
+    status,
     origin: normalizeSelectFilter(query['filter-origin']),
     arrivalFrom: getFilterValue(query, 'filter-arrival-from'),
     arrivalTo: getFilterValue(query, 'filter-arrival-to'),
@@ -81,7 +92,7 @@ const matchesSearchFilter = (consignment, search) => {
 const matchesQuickFilters = (consignment, quickFilters) =>
   quickFilters.every((key) => {
     const quickFilter = QUICK_FILTER_GROUPS.find((group) => group.key === key)
-    return !quickFilter || quickFilter.matches(consignment)
+    return !quickFilter || matchesQuickFilterGroup(quickFilter, consignment)
   })
 
 const matchesSelectedValue = (selectedValue, value) =>

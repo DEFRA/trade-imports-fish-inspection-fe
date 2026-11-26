@@ -63,11 +63,17 @@ The combined export is ordered as follows:
 | `completed-today`     | Completed today     | completed | Status `COMPLETED` and completed today              |
 | `mismatches-flagged`  | Mismatches flagged  | none      | Risk flag `COMMODITY_MISMATCH` or `WEIGHT_MISMATCH` |
 
-- Selected quick filters are combined with AND.
-- Each summary card links to the dashboard with its key toggled. The `awaiting-inspection` and `mismatches-flagged` cards have the `action` modifier.
+- Selected quick filters are combined with AND. A quick filter that has a status (`awaiting-inspection`, `completed-today`) is dropped when the `filter-status` value is set to a different status.
+- The `in-progress` group uses the status filter form field instead of a quick filter (`useFormStatus`): its card is active when `filter-status` is `IN_PROGRESS`, and its link sets or removes `filter-status`. A legacy `quick-filter=in-progress` is converted to that status when `filter-status` is absent and is not kept as a quick filter.
+- Each other summary card links to the dashboard with its key toggled. The `awaiting-inspection` and `mismatches-flagged` cards have the `action` modifier.
 - The `mismatches-flagged` card also has `tabVariants` with a count and link for each tab; client JavaScript swaps the card's count and link when the tab changes.
-- An active card links to the same view with its key removed and shows "Remove filter" instead of "Apply filter".
-- Active filter chips are built per tab and each chip's link removes that one filter.
+- An active card links to the same view with its filter removed and shows "Remove filter" instead of "Apply filter".
+- Active filter chips are built per tab and each chip's link removes that one filter. Quick filter chips are labelled "View: <label>".
+- The status filter options exclude `COMPLETED`.
+
+## Links and anchors
+
+Dashboard links (cards and chips) always include `tab` and end with a fragment. Inactive cards use `#<tab>-results`, so the page focuses the results heading; active cards and chips use `#<tab>`. The search form submits to `/inspections#active-results`, and each tab's sort form submits to `/inspections#<tab>`. Changing a sort select submits the form automatically and restores the scroll position (see [Client assets](client-assets.md#javascript)).
 
 ## Row display
 
