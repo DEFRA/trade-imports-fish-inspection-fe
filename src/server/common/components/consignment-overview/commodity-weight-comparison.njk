@@ -1,5 +1,5 @@
 {% macro renderCommodityWeightComparison(comparison, reference) %}
-  <section class="govuk-!-margin-bottom-8" aria-labelledby="commodity-weight-comparison-heading">
+  <section class="govuk-!-margin-bottom-8" aria-labelledby="weight-heading">
     <h2 class="govuk-heading-m" id="weight-heading">Commodity weight comparison</h2>
     {% if comparison and comparison.groups.length %}
       <p class="govuk-body govuk-!-margin-bottom-1">{{ comparison.commodityCount }} commodity code{% if comparison.commodityCount != 1 %}s{% endif %}, {{ comparison.speciesCount }} species.</p>
