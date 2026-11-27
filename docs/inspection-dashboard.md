@@ -6,17 +6,20 @@ The consignment detail page at `/inspection/{reference}` is described in [Consig
 
 ## Consignment detail
 
-`GET /inspection/{reference}` is handled by `consignmentController` in the home controller. It redirects to `/mock-auth` unless the session user has the `PHA` role and a `portId`, throws a 404 when `buildInspectionConsignmentViewModel(portId, reference)` returns `null` (no consignment with that reference for the port), and otherwise renders `inspection/consignment` with `pageTitle` `Consignment <reference>`, `basePath`, `user` and `consignment`.
+`GET /inspection/{reference}` is handled by `consignmentController` in the home controller. It uses the same `requirePhaUser` guard as `/inspections` and `/account` (see [Routes](routes.md#mock-sign-in)): 403 when `authMode` is not `mock` (even for an existing PHA session), redirect to `/mock-auth` without a session user, and 403 without the `PHA` role or a `portId`. It throws a 404 when `buildInspectionConsignmentViewModel(portId, reference)` returns `null` (no consignment with that reference for the port), and otherwise renders `inspection/consignment` with `pageTitle` `Consignment <reference>`, `basePath`, `user` and `consignment`.
 
 The view model is the dashboard row from `mapConsignmentForView` plus:
 
 - Summary fields: `port` (the seed `port`, otherwise `Dover` for port `DOVER` and `Felixstowe` for any other), `importerEori`, `declaredWeight`, `productDescription` (distinct species joined with commas), `vesselName`, `imoNumber`, `containerNumber` and `exportingCountry`.
-- `showDocumentInsightsWarning` is true when the consignment has risk flags. `documentInsightsWarningText` is the seed `warningText`, then `riskNotes`, then the risk flag labels joined with commas. The `consignment.njk` template does not use these two fields; its warning panel renders `consignment.informationText`, which no code in the view model sets, so the panel is not currently shown.
+- `showDocumentInsightsWarning` is true when the consignment has risk flags. `documentInsightsWarningText` is the seed `warningText`, then `riskNotes`, then the risk flag labels joined with commas. `consignment.njk` shows them in a warning panel above "Recent changes".
 - `evidenceRows`: one row each for catch certificates, processing statements, Non-Manipulation Documents (NMD) and additional documents. Each row has `type`, `count`, `status` (`Provided` or `Not provided`), `statusClass`, `details` and generated `references` of the form `<CC|PS|NMD|DOC>-<country code>-<consignment number>-<nn>`. The country code comes from a fixed lookup, with `XX` for unknown countries.
 - `commodityWeightComparison`: `null` without a commodity summary, otherwise commodity and species counts, total weight and per-commodity groups. Weights on the notification come from the seed; the catch certificate, processing statement and NMD weights are always `Not available`.
 - `recentChange`: the first entry of `recentChanges` (label, description, actor, timestamp, `completionCertificate`), otherwise the status label with `completedAt` when set.
 
-The [consignment.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/consignment.njk) view uses the `consignment-overview` and `inspection-action-form` components described in [Views and templates](views-and-templates.md#components). Its "View previous changes" link (`/inspection/<reference>/history`) and the action form's `POST` target (`/inspection/<reference>/action`) have no matching routes in the codebase, so they are not currently handled.
+The [consignment.njk](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/consignment.njk) view uses the `consignment-overview` and `inspection-action-form` components described in [Views and templates](views-and-templates.md#components). Two parts are still in progress:
+
+- The "View previous changes" link (`/inspection/<reference>/history`) is shown, but no history route exists yet, so it returns 404.
+- The action form includes the CSRF `crumb`, but its Submit button is disabled with the hint "Recording inspection actions is not available yet." because no `POST /inspection/<reference>/action` route exists.
 
 ## Modules
 
@@ -62,8 +65,9 @@ The [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/
 The seeds live in `src/server/routes/inspection/` and are validated and converted to consignment summaries by the mock API ([consignment-summaries-api.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/mock-api/consignment-summaries-api.js)).
 
 - [inspection-dashboard-consignment-seeds.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds.js): default export combining all seed groups, plus the generators for the additional Felixstowe and Dover seeds.
-- [inspection-dashboard-consignment-seeds-felixstowe.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds-felixstowe.js): Felixstowe seeds and the importer name constants shared with the generators.
-- [inspection-dashboard-consignment-seed-generator-controls.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seed-generator-controls.js): reference start numbers, base weights, weight increments and the document count cycle for generated seeds.
+- [inspection-dashboard-consignment-seeds-felixstowe.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds-felixstowe.js): Felixstowe seeds. It starts with the detailed seeds from [inspection-dashboard-consignment-seeds-felixstowe-detailed.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seeds-felixstowe-detailed.js) (`GB-IUU-2026-11001` to `11005`, with commodity breakdowns, recent changes and warning text), followed by the shorter Felixstowe seeds.
+- [inspection-dashboard-consignment-seed-values.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seed-values.js): importer name, species and weight constants shared by the seed files and generators.
+- [inspection-dashboard-consignment-seed-generator-controls.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-consignment-seed-generator-controls.js): reference start numbers, base weights, weight increments, the document count cycle, the number of multi-commodity Dover seeds, and the generated IMO, container number and status-change time settings.
 - [inspection-dashboard-paired-arrival-seeds.json](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/server/routes/inspection/inspection-dashboard-paired-arrival-seeds.json): `[arrivalOffsetDays, status]` pairs used by the generators.
 
 The combined export is ordered as follows:
@@ -98,7 +102,7 @@ Dashboard links (cards and chips) always include `tab` and end with a fragment. 
 
 ## Row display
 
-`mapConsignmentForView` produces each row, including a `detailPath` of `/inspection/<reference>`, short-date and weight (`kg`) formatting, a status label and tag class, risk flag labels, a documents-provided summary and a commodity and species summary grouped by commodity code.
+`mapConsignmentForView` produces each row, including short-date and weight (`kg`) formatting, a status label and tag class, risk flag labels, a documents-provided summary and a commodity and species summary grouped by commodity code. In the dashboard template, each row's reference is a link to `/inspection/<reference>` ([Consignment detail](#consignment-detail)).
 
 Each consignment summary has `commoditySpecies` (`commodityCode`, `species`, `weight` items). It uses the seed's `commoditySpecies` when present, otherwise a single item built from the seed's first commodity code, species and declared weight. `commodityCodes` is the de-duplicated list of codes.
 

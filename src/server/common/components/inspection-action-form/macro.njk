@@ -37,12 +37,13 @@
   }) }}
 {% endmacro %}
 
-{% macro renderInspectionActionForm(basePath, reference, actionData, errorMap) %}
+{% macro renderInspectionActionForm(basePath, reference, crumb, actionData, errorMap) %}
   {% set actionData = actionData or {} %}
   {% set errorMap = errorMap or {} %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form method="post" action="{{ basePath }}/inspection/{{ reference }}/action">
+        <input type="hidden" name="crumb" value="{{ crumb }}">
         <div id="inspection-action-options" data-action-radios>
           {{ govukRadios({
             idPrefix: "inspection-action",
@@ -80,7 +81,13 @@
         <div data-decision-confirmation hidden>
           {{ renderDecisionConfirmation() }}
         </div>
-        {{ govukButton({ text: "Submit" }) }}
+        {# Submission stays disabled until POST /inspection/{reference}/action is implemented. #}
+        <p class="govuk-hint" id="inspection-action-unavailable">Recording inspection actions is not available yet.</p>
+        {{ govukButton({
+          text: "Submit",
+          disabled: true,
+          attributes: { "aria-describedby": "inspection-action-unavailable" }
+        }) }}
       </form>
     </div>
   </div>

@@ -54,10 +54,10 @@
       </div>
     </div>
 
-    {% if consignment.informationText %}
+    {% if consignment.showDocumentInsightsWarning %}
       <div class="govuk-warning-text inspection-overview__warning govuk-!-margin-bottom-8">
         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-        <strong class="govuk-warning-text__text inspection-overview__warning-text"><span class="inspection-overview__warning-label">Warning:</span> {{ consignment.informationText }}</strong>
+        <strong class="govuk-warning-text__text inspection-overview__warning-text"><span class="inspection-overview__warning-label">Warning:</span> {{ consignment.documentInsightsWarningText }}</strong>
       </div>
     {% endif %}
 
@@ -67,7 +67,8 @@
       {% if consignment.recentChange.completionCertificate %}
         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-1 govuk-!-margin-bottom-2">
       {% endif %}
-      <a class="govuk-link govuk-body" href="/inspection/{{ consignment.reference }}/history">View previous changes</a>
+      {# In progress: GET /inspection/{reference}/history is not implemented yet, so this link currently returns 404. #}
+      <a class="govuk-link govuk-body" href="{{ basePath }}/inspection/{{ consignment.reference }}/history">View previous changes</a>
     </section>
 
     <section class="govuk-!-margin-bottom-8" aria-labelledby="documents-insights-heading">
@@ -109,7 +110,7 @@
       {{ renderEvidenceSummaryList(consignment.evidenceRows) }}
     </section>
 
-    {{ renderInspectionActionForm('', consignment.reference, {}, {}) }}
+    {{ renderInspectionActionForm('', consignment.reference, crumb, {}, {}) }}
   </div>
 </div>
 {% endblock %}

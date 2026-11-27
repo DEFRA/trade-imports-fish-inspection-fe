@@ -9,12 +9,14 @@ import {
 } from 'govuk-frontend'
 import cookies from './cookies.js'
 
+const ARIA_CONTROLS = 'aria-controls'
+const ARIA_EXPANDED = 'aria-expanded'
+const VISIBLE_ACTION_OPTION_COUNT = 3
+
 cookies.init()
 
 document.querySelectorAll('[data-goods-toggle]').forEach((button) => {
-  const goodsRows = document.getElementById(
-    button.getAttribute('aria-controls')
-  )
+  const goodsRows = document.getElementById(button.getAttribute(ARIA_CONTROLS))
   if (!goodsRows) {
     return
   }
@@ -22,9 +24,9 @@ document.querySelectorAll('[data-goods-toggle]').forEach((button) => {
   goodsRows.hidden = true
   button.hidden = false
   button.addEventListener('click', () => {
-    const isExpanded = button.getAttribute('aria-expanded') === 'true'
+    const isExpanded = button.getAttribute(ARIA_EXPANDED) === 'true'
     goodsRows.hidden = isExpanded
-    button.setAttribute('aria-expanded', String(!isExpanded))
+    button.setAttribute(ARIA_EXPANDED, String(!isExpanded))
     button.textContent = isExpanded ? 'Show more' : 'Show less'
   })
 })
@@ -32,7 +34,7 @@ document.querySelectorAll('[data-goods-toggle]').forEach((button) => {
 document.querySelectorAll('.inspection-action-options').forEach((radios) => {
   const additionalItems = Array.from(radios.children)
     .filter((item) => item.classList.contains('govuk-radios__item'))
-    .slice(3)
+    .slice(VISIBLE_ACTION_OPTION_COUNT)
 
   if (additionalItems.length === 0) {
     return
@@ -49,13 +51,13 @@ document.querySelectorAll('.inspection-action-options').forEach((radios) => {
   more.type = 'button'
   more.className = 'govuk-link inspection-action-options__toggle'
   more.textContent = 'Show more options'
-  more.setAttribute('aria-controls', extra.id)
+  more.setAttribute(ARIA_CONTROLS, extra.id)
 
   const less = document.createElement('button')
   less.type = 'button'
   less.className = more.className
   less.textContent = 'Show less'
-  less.setAttribute('aria-controls', extra.id)
+  less.setAttribute(ARIA_CONTROLS, extra.id)
 
   extra.append(divider, ...additionalItems, less)
   radios.append(more, extra)
@@ -63,8 +65,8 @@ document.querySelectorAll('.inspection-action-options').forEach((radios) => {
   const setExpanded = (expanded) => {
     extra.hidden = !expanded
     more.hidden = expanded
-    more.setAttribute('aria-expanded', String(expanded))
-    less.setAttribute('aria-expanded', String(expanded))
+    more.setAttribute(ARIA_EXPANDED, String(expanded))
+    less.setAttribute(ARIA_EXPANDED, String(expanded))
   }
 
   setExpanded(

@@ -1,5 +1,5 @@
 import { createServer } from '#/server/server.js'
-import { homeController } from './controller.js'
+import { consignmentController, homeController } from './controller.js'
 import * as cheerio from 'cheerio'
 
 // CDP Testing runs a production build without a service-specific auth override.
@@ -167,18 +167,21 @@ describe('#homeController', () => {
   })
 
   test('denies a PHA session without an assigned port', () => {
-    const code = vi.fn()
+    for (const controller of [homeController, consignmentController]) {
+      const code = vi.fn()
 
-    homeController.handler(
-      {
-        yar: {
-          get: () => ({ roles: ['PHA'] })
-        }
-      },
-      { view: () => ({ code }) }
-    )
+      controller.handler(
+        {
+          params: { reference: 'GB-IUU-2026-11002' },
+          yar: {
+            get: () => ({ roles: ['PHA'] })
+          }
+        },
+        { view: () => ({ code }) }
+      )
 
-    expect(code).toHaveBeenCalledWith(403)
+      expect(code).toHaveBeenCalledWith(403)
+    }
   })
 
   test('selecting a non-PHA user removes previous PHA access', async () => {
@@ -268,7 +271,13 @@ describe('#homeController', () => {
     expect(response.payload).not.toContain('GB-IUU-2026-21001')
     expect(response.payload).not.toContain('GB-IUU-2026-21003')
     expect($('#active .inspection-dashboard__reference')).toHaveLength(10)
-    expect($('a.inspection-dashboard__reference')).toHaveLength(0)
+    $('.inspection-dashboard__reference').each((_, reference) => {
+      expect(reference.tagName).toBe('a')
+      expect($(reference).attr('href')).toBe(
+        `/inspection/${$(reference).text().trim()}`
+      )
+    })
+    expect($('tr[role="link"], tr[data-row-href]')).toHaveLength(0)
     expect($('nav a[href="/about"]')).toHaveLength(0)
     expect($('nav a[href="/"]')).toHaveLength(0)
   })
@@ -477,6 +486,37 @@ describe('#homeController', () => {
     ).toHaveLength(0)
   })
 
+  test('keeps the inspection action form CSRF-ready but unavailable to submit', async () => {
+    const response = await getDashboardAs(
+      'felixstowe-test',
+      '/inspection/GB-IUU-2026-11002'
+    )
+    const $ = cheerio.load(response.payload)
+    const form = $('form[action="/inspection/GB-IUU-2026-11002/action"]')
+
+    expect(form.find('input[type="hidden"][name="crumb"]').val()).toBeTruthy()
+    expect(form.find('button[type="submit"]').is('[disabled]')).toBe(true)
+    expect(form.text()).toContain(
+      'Recording inspection actions is not available yet.'
+    )
+  })
+
+  test('shows the document insights warning only for consignments with risk flags', async () => {
+    const flagged = cheerio.load(
+      (await getDashboardAs('felixstowe-test', '/inspection/GB-IUU-2026-11003'))
+        .payload
+    )
+    const unflagged = cheerio.load(
+      (await getDashboardAs('felixstowe-test', '/inspection/GB-IUU-2026-11006'))
+        .payload
+    )
+
+    expect(flagged('.inspection-overview__warning-text').text()).toContain(
+      'Catch certificate SYC/SFA/10/2026-SW0454 (64,000 kg) is not represented in the processing evidence.'
+    )
+    expect(unflagged('.inspection-overview__warning')).toHaveLength(0)
+  })
+
   test('shows a back link to inspections on the consignment overview', async () => {
     const response = await getDashboardAs(
       'felixstowe-test',
@@ -536,7 +576,9 @@ describe('#homeController', () => {
     expect(response.payload).not.toContain('GB-IUU-2026-11002')
     expect(response.payload).not.toContain('GB-IUU-2026-21003')
     expect($('#active .inspection-dashboard__reference')).toHaveLength(10)
-    expect($('a.inspection-dashboard__reference')).toHaveLength(0)
+    expect(
+      $('#active a.inspection-dashboard__reference').first().attr('href')
+    ).toMatch(/^\/inspection\/GB-IUU-2026-2\d{4}$/)
     expect($('.govuk-tabs__list').text()).toContain('Active (38)')
     expect($('.govuk-tabs__list').text()).toContain('Completed (4)')
     expect(

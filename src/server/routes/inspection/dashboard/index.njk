@@ -213,11 +213,11 @@
               </th>
             </tr>
           {% endif %}
-          <tr{% if loop.index == tabData.pagination.firstNewRowIndex %} id="{{ tabData.pagination.firstRowAnchorId }}"{% endif %} class="govuk-table__row inspection-dashboard__row inspection-dashboard__stacked-row" data-row-href="{{ basePath }}{{ consignment.detailPath }}" tabindex="0" role="link" aria-label="Open consignment {{ consignment.reference }}">
+          <tr{% if loop.index == tabData.pagination.firstNewRowIndex %} id="{{ tabData.pagination.firstRowAnchorId }}"{% endif %} class="govuk-table__row inspection-dashboard__row inspection-dashboard__stacked-row">
             <td class="govuk-table__cell inspection-dashboard__stacked-cell">
               <div class="inspection-dashboard__consignment">
                 <div class="inspection-dashboard__consignment-header">
-                  <strong class="govuk-!-font-weight-bold inspection-dashboard__reference">{{ consignment.reference }}</strong>
+                  <a href="{{ basePath }}/inspection/{{ consignment.reference }}" class="govuk-link govuk-!-font-weight-bold inspection-dashboard__reference">{{ consignment.reference }}</a>
                   <ul class="inspection-dashboard__tag-list" aria-label="Status and risk indicators for {{ consignment.reference }}">
                     <li class="inspection-dashboard__status">
                       <strong class="govuk-tag {{ consignment.statusTagClass }}">{{ consignment.statusLabel }}</strong>

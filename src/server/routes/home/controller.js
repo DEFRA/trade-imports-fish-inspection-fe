@@ -56,12 +56,7 @@ export const homeController = {
 }
 
 export const consignmentController = {
-  handler(request, h) {
-    const user = request.yar.get('mock-user')
-    if (!user?.roles?.includes('PHA') || !user.portId) {
-      return h.redirect(mockAuthPath)
-    }
-
+  handler: requirePhaUser((request, h, user) => {
     const consignment = buildInspectionConsignmentViewModel(
       user.portId,
       request.params.reference
@@ -76,7 +71,7 @@ export const consignmentController = {
       user,
       consignment
     })
-  }
+  })
 }
 
 export const accountController = {

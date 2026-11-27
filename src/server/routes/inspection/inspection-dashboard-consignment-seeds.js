@@ -6,17 +6,22 @@ import {
   ADDITIONAL_FELIXSTOWE_BASE_WEIGHT_KG,
   ADDITIONAL_FELIXSTOWE_REFERENCE_START,
   ADDITIONAL_FELIXSTOWE_WEIGHT_INCREMENT_KG,
-  DOCUMENT_COUNT_CYCLE
+  CONTAINER_SERIAL_DIGITS,
+  DOCUMENT_COUNT_CYCLE,
+  GENERATED_IMO_NUMBER_START,
+  MULTI_COMMODITY_SEED_COUNT,
+  STATUS_CHANGE_HASH_MULTIPLIER
 } from './inspection-dashboard-consignment-seed-generator-controls.js'
 import { STATUS_LABELS } from './services/inspection-dashboard-constants.js'
-import felixstoweConsignmentSeeds, {
+import felixstoweConsignmentSeeds from './inspection-dashboard-consignment-seeds-felixstowe.js'
+import {
   ATLANTIC_SEAFOODS,
   ATLANTIC_TUNA_IMPORTS,
   HARBOUR_CATCH_IMPORTS,
   NEW_ENGLAND_SEAFOOD_INTERNATIONAL,
   NEW_ENGLAND_SEAFOOD_INTERNATIONAL_LTD,
   OCEAN_HARVEST_IMPORTS
-} from './inspection-dashboard-consignment-seeds-felixstowe.js'
+} from './inspection-dashboard-consignment-seed-values.js'
 
 const require = createRequire(import.meta.url)
 const pairedArrivalSeeds = require('./inspection-dashboard-paired-arrival-seeds.json')
@@ -212,7 +217,7 @@ const additionalDoverConsignmentSeeds = Array.from(
       pairedArrivalSeeds[index % pairedArrivalSeeds.length]
     const referenceNumber = ADDITIONAL_DOVER_REFERENCE_START + index
     const commodityCodes =
-      index < 3
+      index < MULTI_COMMODITY_SEED_COUNT
         ? [
             additionalCommodityCodes[index % additionalCommodityCodes.length],
             additionalCommodityCodes[
@@ -232,7 +237,7 @@ const additionalDoverConsignmentSeeds = Array.from(
       portId: 'DOVER',
       notificationStatus: 'SUBMITTED',
       commodityCodes,
-      ...(index < 3 && {
+      ...(index < MULTI_COMMODITY_SEED_COUNT && {
         commoditySpecies: commodityCodes.map(
           (commodityCode, commodityIndex) => ({
             commodityCode,
@@ -274,7 +279,8 @@ const allConsignmentSeeds = [
 const getStatusChangeTime = (id) => {
   let hash = 0
   for (const character of id) {
-    hash = (hash * 31 + character.charCodeAt(0)) >>> 0
+    hash =
+      (hash * STATUS_CHANGE_HASH_MULTIPLIER + character.codePointAt(0)) >>> 0
   }
 
   const minutesAfterEightAm = hash % (10 * 60)
@@ -316,9 +322,10 @@ export default allConsignmentSeeds.map((seed, index) => {
       !seed.vesselName || seed.vesselName === 'Multiple vessels'
         ? generatedVesselName
         : seed.vesselName,
-    imoNumber: seed.imoNumber || String(1156094 + index),
+    imoNumber: seed.imoNumber || String(GENERATED_IMO_NUMBER_START + index),
     containerNumber:
-      seed.containerNumber || `TIFU${String(index + 1).padStart(7, '0')}`,
+      seed.containerNumber ||
+      `TIFU${String(index + 1).padStart(CONTAINER_SERIAL_DIGITS, '0')}`,
     importerEori
   }
 })
