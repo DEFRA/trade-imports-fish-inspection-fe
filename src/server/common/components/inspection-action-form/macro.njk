@@ -1,0 +1,94 @@
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+
+{% macro renderInspectionOutcomeRadios(actionData, errorMap) %}
+  {{ govukRadios({
+    idPrefix: "documentary-check-outcome",
+    name: "documentary-check-outcome",
+    classes: "govuk-radios--small",
+    fieldset: {
+      legend: {
+        text: "Documentary check outcome",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    errorMessage: { text: errorMap['documentary-check-outcome'] } if errorMap['documentary-check-outcome'] else null,
+    items: [
+      { value: "satisfactory", text: "Satisfactory", checked: actionData.outcome == "satisfactory" },
+      { value: "satisfactory-following-intervention", text: "Satisfactory following intervention", checked: actionData.outcome == "satisfactory-following-intervention" },
+      { value: "not-satisfactory", text: "Not satisfactory", checked: actionData.outcome == "not-satisfactory" }
+    ]
+  }) }}
+{% endmacro %}
+
+{% macro renderDecisionConfirmation() %}
+  {{ govukCheckboxes({
+    idPrefix: "decision-confirmation",
+    name: "decision-confirmation",
+    classes: "govuk-checkboxes--small",
+    items: [
+      {
+        value: "confirmed",
+        text: "I confirm this records the outcome of my IUU control check and that the decision will be shared with the importer."
+      }
+    ]
+  }) }}
+{% endmacro %}
+
+{% macro renderInspectionActionForm(basePath, reference, crumb, actionData, errorMap) %}
+  {% set actionData = actionData or {} %}
+  {% set errorMap = errorMap or {} %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form method="post" action="{{ basePath }}/inspection/{{ reference }}/action">
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        <div id="inspection-action-options" data-action-radios>
+          {{ govukRadios({
+            idPrefix: "inspection-action",
+            name: "inspection-action",
+            classes: "govuk-radios--small inspection-action-options",
+            fieldset: {
+              legend: {
+                text: "Actions",
+                classes: "govuk-fieldset__legend--m"
+              }
+            },
+            errorMessage: { text: errorMap['inspection-action'] } if errorMap['inspection-action'] else null,
+            items: [
+              { value: "issue-decision", text: "Issue a decision", checked: actionData.action == "issue-decision", conditional: { html: renderInspectionOutcomeRadios(actionData, errorMap) } },
+              { value: "document-under-assessment", text: "Move to document under assessment", checked: actionData.action == "document-under-assessment" },
+              { value: "add-note", text: "Add note", checked: actionData.action == "add-note" },
+              { value: "request-information", text: "Request more information", checked: actionData.action == "request-information" },
+              { value: "referred-to-mmo", text: "Request advice from MMO", checked: actionData.action == "referred-to-mmo" },
+              { value: "physical-inspection", text: "Move to physical inspection", checked: actionData.action == "physical-inspection" },
+              { value: "appeal-review", text: "Move to appeal review", checked: actionData.action == "appeal-review" },
+              { value: "refer-to-enforcement", text: "Refer to enforcement", checked: actionData.action == "refer-to-enforcement" },
+              { value: "archive-notification", text: "Archive notification", checked: actionData.action == "archive-notification" }
+            ]
+          }) }}
+        </div>
+        {{ govukTextarea({
+          id: "inspection-action-notes",
+          name: "inspection-action-notes",
+          rows: 4,
+          errorMessage: { text: errorMap['inspection-action-notes'] } if errorMap['inspection-action-notes'] else null,
+          value: actionData.notes,
+          label: { text: "Notes", classes: "govuk-label--s" },
+          hint: { text: "Describe the action taken and any other related information" }
+        }) }}
+        <div data-decision-confirmation hidden>
+          {{ renderDecisionConfirmation() }}
+        </div>
+        {# Submission stays disabled until POST /inspection/{reference}/action is implemented. #}
+        <p class="govuk-hint" id="inspection-action-unavailable">Recording inspection actions is not available yet.</p>
+        {{ govukButton({
+          text: "Submit",
+          disabled: true,
+          attributes: { "aria-describedby": "inspection-action-unavailable" }
+        }) }}
+      </form>
+    </div>
+  </div>
+{% endmacro %}

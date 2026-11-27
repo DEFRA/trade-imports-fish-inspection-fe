@@ -29,7 +29,7 @@ Changes to inline scripts or Google hosts require updating this policy.
 - Crumb sets a cookie holding the token, and the token is available to templates as `crumb`.
 - Forms include the token as a hidden `crumb` field. The client-side consent script sends it in the JSON body.
 - POST requests without a matching token are rejected with 403.
-- The cookie `Secure` flag is set only in production.
+- The crumb cookie `Secure` flag follows `session.cookie.secure` (`SESSION_COOKIE_SECURE`, true in production by default).
 
 ## Cookie and session security
 

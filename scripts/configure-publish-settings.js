@@ -4,8 +4,11 @@ import { appendFileSync } from 'node:fs'
 const MAX_DOCKER_TAG_LENGTH = 128
 const STABLE_RELEASE_TAG_PATTERN = /^v?\d+\.\d+\.\d+$/
 const PRERELEASE_BRANCH_PATTERN =
-  /^(feature|bugfix|ci|chore)\/(FISB-\d+)-[a-z0-9]+(-[a-z0-9]+)*$/
+  /^(feature|bugfix|ci|chore)\/([Ff][Ii][Ss][Bb]-\d+)-[a-z0-9]+(-[a-z0-9]+)*$/
 const POSITIVE_INTEGER_PATTERN = /^[1-9]\d*$/
+const GIT_EXECUTABLE =
+  process.env.GIT_EXECUTABLE ||
+  (process.platform === 'win32' ? 'git.exe' : '/usr/bin/git')
 
 const currentBranch = process.env.GITHUB_REF_NAME
 const publishingOutputFile = process.env.GITHUB_OUTPUT
@@ -121,12 +124,12 @@ function findLatestReachableStableTag() {
 }
 
 function readGitTags(args) {
-  return execFileSync('/usr/bin/git', args, { encoding: 'utf8' }).split('\n')
+  return execFileSync(GIT_EXECUTABLE, args, { encoding: 'utf8' }).split('\n')
 }
 
 function readHistorySince(stableTag) {
   return execFileSync(
-    '/usr/bin/git',
+    GIT_EXECUTABLE,
     ['log', `${stableTag}..HEAD`, '--format=%B'],
     {
       encoding: 'utf8'

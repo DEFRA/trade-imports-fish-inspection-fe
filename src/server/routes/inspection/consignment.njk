@@ -1,0 +1,116 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "inspection-action-form/macro.njk" import renderInspectionActionForm %}
+{% from "consignment-overview/evidence-summary-list.njk" import renderEvidenceSummaryList %}
+{% from "consignment-overview/commodity-weight-comparison.njk" import renderCommodityWeightComparison %}
+{% from "moj/components/timeline/macro.njk" import mojTimeline %}
+
+{% block beforeContent %}
+{{ super() }}
+{{ govukBackLink({ text: "Back", href: "/inspections" }) }}
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+    <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">Consignment {{ consignment.reference }}</h1>
+
+    <div class="inspection-overview__tag-list" aria-label="Consignment status and risk tags">
+      <strong class="govuk-tag inspection-overview__status-tag {{ consignment.statusTagClass }}">{{ consignment.statusTagText }}</strong>
+      <div class="inspection-overview__secondary-tags" aria-label="Arrival urgency and risk indicators">
+        <strong class="govuk-tag {{ consignment.daysUntilArrivalTagClass }} inspection-overview__status-tag{% if consignment.daysUntilArrival < 0 %} inspection-overdue-tag{% endif %}">{{ consignment.arrivalTimingLabel }}</strong>
+        {% for risk in consignment.riskFlags %}
+          <strong class="govuk-tag inspection-overview__risk-tag">{{ risk.text }}</strong>
+        {% else %}
+          <strong class="govuk-tag inspection-overview__risk-tag">No risk identified</strong>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="inspection-overview__summary-grid govuk-!-margin-bottom-8">
+      <div class="inspection-overview__summary-card">
+        <p class="govuk-body govuk-!-margin-bottom-1 inspection-overview__summary-label">Estimated arrival</p>
+        <p class="govuk-heading-m govuk-!-margin-bottom-1">{{ consignment.arrivalDateDisplay }}{% if consignment.arrivalTime %}, {{ consignment.arrivalTime }}{% endif %}</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">{{ consignment.port }}</p>
+      </div>
+      <div class="inspection-overview__summary-card">
+        <p class="govuk-body govuk-!-margin-bottom-1 inspection-overview__summary-label">Importer</p>
+        <p class="govuk-heading-m govuk-!-margin-bottom-1">{{ consignment.importer }}</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">EORI: {{ consignment.importerEori }}</p>
+      </div>
+      <div class="inspection-overview__summary-card">
+        <p class="govuk-body govuk-!-margin-bottom-1 inspection-overview__summary-label">Declared weight</p>
+        <p class="govuk-heading-m govuk-!-margin-bottom-1">{{ consignment.declaredWeight }}</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">{{ consignment.productDescription }}</p>
+      </div>
+      <div class="inspection-overview__summary-card">
+        <p class="govuk-body govuk-!-margin-bottom-1 inspection-overview__summary-label">Vessel</p>
+        <p class="govuk-heading-m govuk-!-margin-bottom-1">{{ consignment.vesselName }} - {% if consignment.imoNumber %} IMO {{ consignment.imoNumber }}{% endif %}</p>
+        <p class="govuk-body govuk-!-margin-bottom-1">Container: {{ consignment.containerNumber }}</p>
+      </div>
+      <div class="inspection-overview__summary-card">
+        <p class="govuk-body govuk-!-margin-bottom-1 inspection-overview__summary-label">Exporting country</p>
+        <p class="govuk-heading-m govuk-!-margin-bottom-0">{{ consignment.exportingCountry }}</p>
+      </div>
+    </div>
+
+    {% if consignment.showDocumentInsightsWarning %}
+      <div class="govuk-warning-text inspection-overview__warning govuk-!-margin-bottom-8">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text inspection-overview__warning-text"><span class="inspection-overview__warning-label">Warning:</span> {{ consignment.documentInsightsWarningText }}</strong>
+      </div>
+    {% endif %}
+
+    <section class="inspection-overview__recent-change govuk-!-margin-bottom-8" aria-labelledby="recent-change-heading">
+      <h2 class="govuk-heading-m" id="recent-change-heading">Recent changes</h2>
+      {{ mojTimeline({ headingLevel: 3, classes: "inspection-overview__recent-change-timeline", items: [consignment.recentChange] }) }}
+      {% if consignment.recentChange.completionCertificate %}
+        <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible govuk-!-margin-top-1 govuk-!-margin-bottom-2">
+      {% endif %}
+      {# In progress: GET /inspection/{reference}/history is not implemented yet, so this link currently returns 404. #}
+      <a class="govuk-link govuk-body" href="{{ basePath }}/inspection/{{ consignment.reference }}/history">View previous changes</a>
+    </section>
+
+    <section class="govuk-!-margin-bottom-8" aria-labelledby="documents-insights-heading">
+      <h2 class="govuk-heading-m" id="documents-insights-heading">Documents insights</h2>
+      <table class="govuk-table inspection-case__evidence-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Evidence type</th>
+            <th scope="col" class="govuk-table__header">Status</th>
+            <th scope="col" class="govuk-table__header">Details</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for evidence in consignment.evidenceRows %}
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header">{{ evidence.type }}</th>
+              <td class="govuk-table__cell"><strong class="govuk-tag {{ evidence.statusClass }}">{{ evidence.status }}</strong></td>
+              <td class="govuk-table__cell">{{ evidence.details }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if consignment.riskFlags.length %}
+        <div class="inspection-case__risk-panel">
+          <h3 class="govuk-heading-m">Potential risk flags</h3>
+          <ul class="govuk-list inspection-case__risk-list">
+            {% for risk in consignment.riskFlags %}
+              <li><span class="inspection-case__risk-icon" aria-hidden="true">!</span><span>{{ risk.text }}</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </section>
+
+    {{ renderCommodityWeightComparison(consignment.commodityWeightComparison, consignment.reference) }}
+
+    <section class="govuk-!-margin-bottom-8" aria-labelledby="evidence-heading">
+      <h2 class="govuk-heading-m" id="evidence-heading">Evidence</h2>
+      {{ renderEvidenceSummaryList(consignment.evidenceRows) }}
+    </section>
+
+    {{ renderInspectionActionForm('', consignment.reference, crumb, {}, {}) }}
+  </div>
+</div>
+{% endblock %}

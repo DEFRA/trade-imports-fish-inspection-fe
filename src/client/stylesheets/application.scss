@@ -1,7 +1,208 @@
-@use "govuk-frontend";
+@use 'govuk-frontend' as govuk;
 
-@use "variables";
-@use "helpers";
-@use "core";
-@use "components";
-@use "partials";
+@use 'variables';
+@use 'helpers';
+@use 'core';
+@use 'components';
+@use 'partials';
+@use 'inspection-dashboard';
+
+.inspection-overview__tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-bottom: 32px;
+}
+
+.inspection-overview__secondary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  min-width: 0;
+  margin-left: 2px;
+  padding-left: 10px;
+  border-left: 1px solid #b1b4b6;
+}
+
+.inspection-overview__tag-list .govuk-tag {
+  display: inline-block;
+  width: auto;
+  max-width: none;
+  padding: 5px 9px 4px;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.inspection-overview__status-tag,
+.inspection-overview__risk-tag {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.inspection-overview__risk-tag {
+  background-color: #f3f2f1;
+  color: #0b0c0c;
+}
+
+.inspection-overview__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inspection-overview__summary-card {
+  min-height: 132px;
+  padding: 12px;
+  border: 1px solid #b1b4b6;
+}
+
+.inspection-overview__summary-label {
+  font-size: 1.1875rem;
+  line-height: 1.3158;
+}
+
+.inspection-overview__warning {
+  margin-bottom: 0;
+}
+
+.inspection-overview__warning-text {
+  font-weight: 400;
+}
+
+.inspection-overview__warning-label {
+  font-weight: 700;
+}
+
+.inspection-overview__comparison-table {
+  min-width: 760px;
+  margin-bottom: 0;
+  table-layout: fixed;
+}
+
+.inspection-overview__comparison-table th:first-child {
+  width: 12%;
+}
+
+.inspection-overview__comparison-table th:nth-child(2) {
+  width: 28%;
+}
+
+.inspection-overview__comparison-table .govuk-table__header,
+.inspection-overview__comparison-table .govuk-table__cell {
+  vertical-align: top;
+}
+
+.inspection-overview__comparison-species {
+  font-weight: 400;
+}
+
+.inspection-overview__comparison-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.inspection-overview__comparison-scroll:focus {
+  outline: 3px solid #ffdd00;
+}
+
+.inspection-overview__recent-change .moj-timeline {
+  position: relative;
+  margin-bottom: govuk.govuk-spacing(4);
+  overflow: hidden;
+}
+
+.inspection-overview__recent-change .moj-timeline::before {
+  content: '';
+  position: absolute;
+  top: govuk.govuk-spacing(2);
+  left: 0;
+  width: 5px;
+  height: calc(100% - 20px);
+  background-color: govuk.govuk-colour('blue');
+}
+
+.inspection-overview__recent-change .moj-timeline__item {
+  position: relative;
+  padding-bottom: 10px;
+  padding-left: govuk.govuk-spacing(4);
+}
+
+.inspection-overview__recent-change .moj-timeline__item::before {
+  content: '';
+  position: absolute;
+  top: govuk.govuk-spacing(2);
+  left: 0;
+  width: 15px;
+  height: 5px;
+  background-color: govuk.govuk-colour('blue');
+}
+
+.inspection-overview__recent-change .moj-timeline__title {
+  display: inline;
+  @include govuk.govuk-font($size: 19, $weight: bold);
+}
+
+.inspection-overview__recent-change .moj-timeline__byline {
+  display: inline;
+  margin: 0;
+  color: govuk.govuk-functional-colour(secondary-text);
+  @include govuk.govuk-font($size: 19);
+}
+
+.inspection-overview__recent-change .moj-timeline__date {
+  margin-top: govuk.govuk-spacing(1);
+  margin-bottom: 0;
+  @include govuk.govuk-font($size: 16);
+}
+
+.inspection-overview__recent-change .moj-timeline__description {
+  margin-top: govuk.govuk-spacing(4);
+  @include govuk.govuk-font($size: 19);
+}
+
+.inspection-case__evidence-table {
+  margin-bottom: 24px;
+}
+
+.inspection-case__risk-panel {
+  padding: 20px;
+  border: 1px solid #f1b8af;
+  background-color: #fef7f7;
+}
+
+.inspection-case__risk-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inspection-case__risk-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.inspection-case__risk-icon {
+  display: inline-flex;
+  flex: 0 0 18px;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 1px solid #f1b8af;
+  border-radius: 50%;
+  color: #d4351c;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 48.0525em) {
+  .inspection-overview__summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

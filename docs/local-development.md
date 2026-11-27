@@ -15,16 +15,16 @@ npm install
 
 `npm run setup:git-hooks` configures Git to use the repository's `.githooks` directory. This is a local Git setting and must be run once per clone.
 
-When the pre-commit hook updates documentation, it runs the Copilot CLI with a temporary configuration directory to isolate tool permissions. Authentication saved by `copilot login` is not available in that directory, so set `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_TOKEN` in the environment before committing code.
+When the pre-commit hook updates documentation, it runs the Copilot CLI using its normal configuration directory. Authenticate with `copilot login`, or provide `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_TOKEN` in the environment before committing code.
 
 ## Running the service
 
-| Script                   | Purpose                                                                                                                         |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`            | Runs `nodemon` with `AWS_EMF_ENVIRONMENT=Local`. Restarts on changes in `src/server` and `src/config`. Loads `.env` if present. |
-| `npm run dev:debug`      | Same as `dev`, with the Node inspector paused on start (`--inspect-brk`).                                                       |
-| `npm run build:frontend` | Builds client assets into `.public` (see [client assets](client-assets.md)).                                                    |
-| `npm start`              | Runs the production mode entry (`NODE_ENV=production node .`). `prestart` builds assets first.                                  |
+| Script                   | Purpose                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`            | Runs `nodemon` with `AWS_EMF_ENVIRONMENT=Local`. Restarts on changes to `.cjs`, `.js` and `.json` files under `src`, ignoring tests, `src/server/common/test-helpers` and `src/client`. Loads `.env` if present. [nodemon.json](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/nodemon.json) sets `NODE_ENV=development` and `AUTH_MODE=mock`. |
+| `npm run dev:debug`      | Same as `dev`, with the Node inspector paused on start (`--inspect-brk`).                                                                                                                                                                                                                                                                                           |
+| `npm run build:frontend` | Builds client assets into `.public` (see [client assets](client-assets.md)).                                                                                                                                                                                                                                                                                        |
+| `npm start`              | Runs the production mode entry (`NODE_ENV=production node .`). `prestart` builds assets first.                                                                                                                                                                                                                                                                      |
 
 The server listens on `PORT` (default `3000`). Configuration is described in [configuration](configuration.md).
 
@@ -35,7 +35,7 @@ The server listens on `PORT` (default `3000`). Configuration is described in [co
 - `floci` (port 4566): AWS emulation for S3 and SQS. Loads [compose/aws.env](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/compose/aws.env) and runs scripts from [compose/floci/start.d](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/compose/floci/start.d). The default script is commented out.
 - `redis` (port 6379): session cache.
 - `mongodb` (port 27017): loads [compose/mongo/10-init.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/compose/mongo/10-init.js) on first start. A healthcheck is defined.
-- `your-frontend` (port 3000): built from the repository `Dockerfile`. It runs with `NODE_ENV=production`, `REDIS_HOST=redis`, `LOG_FORMAT=pino-pretty`, `SESSION_COOKIE_SECURE=false`, `USE_SINGLE_INSTANCE_CACHE=true`, and `REDIS_TLS=false`.
+- `your-frontend` (port 3000): built from the repository `Dockerfile`. It runs with `NODE_ENV=production`, `AUTH_MODE=mock`, `REDIS_HOST=redis`, `LOG_FORMAT=pino-pretty`, `SESSION_COOKIE_SECURE=false`, `USE_SINGLE_INSTANCE_CACHE=true`, and `REDIS_TLS=false`.
 - A commented-out `your-backend` example.
 
 ```bash
