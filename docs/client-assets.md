@@ -29,7 +29,11 @@ Vite settings:
 
 For each `[data-goods-toggle]` button it hides the rows controlled by `aria-controls`, reveals the button, and toggles the rows and the button's `aria-expanded` and text (`Show more` / `Show less`) on click.
 
-When the URL hash matches an element with `data-results-tab` (the dashboard's `<tab>-results` heading), the hash is replaced with the tab id before `Tabs` is initialised so that the matching tab is selected. On the first `pageshow` the results heading is then focused and scrolled into view. See [Inspection dashboard](inspection-dashboard.md#links-and-anchors).
+For each `.inspection-action-options` radio group (the action form on the consignment page), only the first three radio items stay visible. If there are more, the rest are moved into a hidden container with a "Show more options" button before it and a "Show less" button inside it. The container starts expanded when one of the extra radios is checked. "Show more options" reveals the extras and focuses the first extra radio. "Show less" clears any checked extra radio (dispatching a bubbling `change` event), collapses the container and focuses "Show more options".
+
+For each `[data-decision-confirmation]` block, the block is hidden unless the `inspection-action` radio in the same form with value `issue-decision` is checked, and is updated on each radio `change`.
+
+When the URL hash matches an element with `data-results-tab` (the dashboard's `<tab>-results` heading or the first row of the latest batch of results), the hash is replaced with the tab id before `Tabs` is initialised so that the matching tab is selected. When there is no hash, the hash is set to the tab selected by the server. On the first `pageshow` the target element is then focused and scrolled into view. See [Inspection dashboard](inspection-dashboard.md#links-and-anchors).
 
 It also updates the dashboard summary cards for the selected tab: for each `.inspection-dashboard__summary-card` it copies `data-count` and `data-href` from the matching `[data-summary-tab]` element into the card's `[data-summary-count]` and `[data-summary-link]`. This runs on load, on tab clicks and on `hashchange`. See [Inspection dashboard](inspection-dashboard.md#quick-filters-and-summary-cards).
 

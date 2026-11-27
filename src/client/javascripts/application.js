@@ -113,11 +113,20 @@ createAll(ErrorSummary)
 createAll(Radios)
 createAll(SkipLink)
 
-const resultsCount = document.getElementById(window.location.hash.slice(1))
-const resultsTab = resultsCount?.dataset.resultsTab
+const hashId = window.location.hash.slice(1)
+const hashTarget = document.getElementById(hashId)
+const resultsTab = hashTarget?.dataset.resultsTab
+const selectedTab = document.querySelector(
+  '.govuk-tabs__list-item--selected .govuk-tabs__tab'
+)
+const serverTab = selectedTab?.getAttribute('href').slice(1)
+
+// GOV.UK Tabs selects a panel by its hash and falls back to the first tab otherwise.
 if (resultsTab) {
-  // GOV.UK Tabs selects a panel by its hash. Consume the Apply target before setup.
+  // Apply and pagination targets map to their tab, so consume them before setup.
   window.history.replaceState(window.history.state, '', `#${resultsTab}`)
+} else if (!hashId && serverTab) {
+  window.history.replaceState(window.history.state, '', `#${serverTab}`)
 }
 createAll(Tabs)
 
@@ -125,8 +134,8 @@ if (resultsTab) {
   window.addEventListener(
     'pageshow',
     () => {
-      resultsCount.focus({ preventScroll: true })
-      resultsCount.scrollIntoView({ block: 'start' })
+      hashTarget.focus({ preventScroll: true })
+      hashTarget.scrollIntoView({ block: 'start' })
     },
     { once: true }
   )
@@ -158,11 +167,8 @@ document.querySelectorAll('.govuk-tabs__tab').forEach((tabLink) => {
   })
 })
 
-const selectedTab = document.querySelector(
-  '.govuk-tabs__list-item--selected .govuk-tabs__tab'
-)
-if (selectedTab) {
-  updateSummaryCards(selectedTab.getAttribute('href').slice(1))
+if (serverTab) {
+  updateSummaryCards(serverTab)
 }
 
 window.addEventListener('hashchange', () =>

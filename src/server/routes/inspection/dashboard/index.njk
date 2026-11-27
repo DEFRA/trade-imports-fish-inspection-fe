@@ -213,7 +213,7 @@
               </th>
             </tr>
           {% endif %}
-          <tr{% if loop.index == tabData.pagination.firstNewRowIndex %} id="{{ tabData.pagination.firstRowAnchorId }}"{% endif %} class="govuk-table__row inspection-dashboard__row inspection-dashboard__stacked-row">
+          <tr{% if loop.index == tabData.pagination.firstNewRowIndex %} id="{{ tabData.pagination.firstRowAnchorId }}" data-results-tab="{{ tabLabel | lower }}" tabindex="-1"{% endif %} class="govuk-table__row inspection-dashboard__row inspection-dashboard__stacked-row">
             <td class="govuk-table__cell inspection-dashboard__stacked-cell">
               <div class="inspection-dashboard__consignment">
                 <div class="inspection-dashboard__consignment-header">

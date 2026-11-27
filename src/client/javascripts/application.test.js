@@ -148,6 +148,43 @@ describe('application browser initialization', () => {
     }
   )
 
+  test.each(['active', 'completed'])(
+    'normalizes %s pagination fragments to their tab and focuses the batch',
+    async (tab) => {
+      const row = {
+        dataset: { resultsTab: tab },
+        focus: vi.fn(),
+        scrollIntoView: vi.fn()
+      }
+      const { windowListeners } = await initializeApplication({
+        hash: `#${tab}-next-batch`,
+        resultsCounts: { [`${tab}-next-batch`]: row }
+      })
+
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        `#${tab}`
+      )
+      windowListeners.get('pageshow')()
+      expect(row.focus).toHaveBeenCalledWith({ preventScroll: true })
+      expect(row.scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+    }
+  )
+
+  test('uses the server-selected tab when the URL has no fragment', async () => {
+    const selectedTab = {
+      getAttribute: vi.fn(() => '#completed')
+    }
+    await initializeApplication({ hash: '', selectedTab })
+
+    expect(window.history.replaceState).toHaveBeenCalledWith(
+      null,
+      '',
+      '#completed'
+    )
+  })
+
   test('does not move focus on an ordinary tab visit', async () => {
     const { windowListeners } = await initializeApplication()
     expect(windowListeners.has('pageshow')).toBe(false)
