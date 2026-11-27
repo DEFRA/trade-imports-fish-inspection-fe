@@ -12,7 +12,7 @@
         <p class="govuk-body-s govuk-!-margin-bottom-1">{{ card.label }}</p>
         <p class="govuk-heading-l govuk-!-margin-bottom-1 inspection-dashboard__summary-value" data-summary-count>{{ card.count }}</p>
         <a class="govuk-link" href="{{ card.href }}" data-summary-link{% if card.active %} aria-current="true"{% endif %}>
-          {% if card.active %}Remove filter{% else %}Apply filter{% endif %}
+          {% if card.active %}Remove filter{% else %}Apply filter{% endif %}<span class="govuk-visually-hidden">: {{ card.label }}</span>
         </a>
       </section>
     {% endfor %}
