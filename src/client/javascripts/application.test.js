@@ -368,4 +368,48 @@ describe('application browser initialization', () => {
       '/inspections?tab=active#active'
     )
   })
+
+  test('initializes the mismatch card from the tab selected after Tabs setup', async () => {
+    const variants = {
+      active: {
+        dataset: { count: '3', href: '/inspections?tab=active#active' }
+      },
+      completed: {
+        dataset: { count: '7', href: '/inspections?tab=completed#completed' }
+      }
+    }
+    const count = { textContent: '' }
+    const link = { setAttribute: vi.fn() }
+    const card = {
+      querySelector: vi.fn((selector) => {
+        if (selector === '[data-summary-count]') {
+          return count
+        }
+        if (selector === '[data-summary-link]') {
+          return link
+        }
+        const [, tab] = selector.match(/data-summary-tab="([^"]+)"/) || []
+        return variants[tab]
+      })
+    }
+    // Server renders Active as selected; Tabs then applies #completed from the hash.
+    const selectedTab = {
+      getAttribute: vi
+        .fn()
+        .mockReturnValueOnce('#active')
+        .mockReturnValue('#completed')
+    }
+
+    await initializeApplication({
+      hash: '#completed',
+      summaryCards: [card],
+      selectedTab
+    })
+
+    expect(count.textContent).toBe('7')
+    expect(link.setAttribute).toHaveBeenLastCalledWith(
+      'href',
+      '/inspections?tab=completed#completed'
+    )
+  })
 })

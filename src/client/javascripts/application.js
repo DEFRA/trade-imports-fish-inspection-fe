@@ -113,13 +113,16 @@ createAll(ErrorSummary)
 createAll(Radios)
 createAll(SkipLink)
 
+const getSelectedTab = () =>
+  document
+    .querySelector('.govuk-tabs__list-item--selected .govuk-tabs__tab')
+    ?.getAttribute('href')
+    .slice(1)
+
 const hashId = window.location.hash.slice(1)
 const hashTarget = document.getElementById(hashId)
 const resultsTab = hashTarget?.dataset.resultsTab
-const selectedTab = document.querySelector(
-  '.govuk-tabs__list-item--selected .govuk-tabs__tab'
-)
-const serverTab = selectedTab?.getAttribute('href').slice(1)
+const serverTab = getSelectedTab()
 
 // GOV.UK Tabs selects a panel by its hash and falls back to the first tab otherwise.
 // Apply and pagination targets map to their tab; with no fragment, use the server-selected tab.
@@ -166,8 +169,9 @@ document.querySelectorAll('.govuk-tabs__tab').forEach((tabLink) => {
   })
 })
 
-if (serverTab) {
-  updateSummaryCards(serverTab)
+const selectedTab = getSelectedTab()
+if (selectedTab) {
+  updateSummaryCards(selectedTab)
 }
 
 window.addEventListener('hashchange', () =>
