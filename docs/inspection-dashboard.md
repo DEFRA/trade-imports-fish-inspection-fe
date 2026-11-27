@@ -44,6 +44,7 @@ The [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/
 | `filter-arrival-from`, `filter-arrival-to`          | Inclusive `YYYY-MM-DD` bounds on estimated arrival; invalid dates are ignored                                              |
 | `sort-by`                                           | `estimated-arrival` (default), `importer`, `status` or `reference`; other values use the default                           |
 | `sort-order`                                        | `asc` (default) or `desc`; other values use the default                                                                    |
+| `page`                                              | Positive integer number of 10-row batches to show on each tab; see [Data and tabs](#data-and-tabs)                         |
 
 ## Data and tabs
 
@@ -51,8 +52,10 @@ The [home controller](https://github.com/DEFRA/trade-imports-fish-inspection-fe/
 - Optional `statusOverrides` (keyed by reference) replace a consignment's status, label and tag class, and set `completedAt` when the override status is `COMPLETED`. The controller does not pass overrides.
 - Consignments with status `COMPLETED` go to the completed tab; all others go to the active tab.
 - The same filters and sort are applied to both tabs. Ties are broken by reference. `desc` reverses the sorted list.
-- Each tab has `rows`, `totalCount`, `filteredTotalCount`, `filteredStart`, `filteredEnd` and a single-page `pagination` placeholder (`currentPage` 1, `pageCount` 1 when rows exist, otherwise 0).
-- When sorting by estimated arrival, the first row for each arrival date gets an `arrivalDateHeading`.
+- Each tab has `rows`, `totalCount`, `filteredTotalCount`, `filteredStart`, `filteredEnd` and `pagination`.
+- Rows are shown in batches of 10 (`NOTIFICATION_PAGE_SIZE`). The `page` query parameter (default 1, invalid values become 1) makes the tab show the first `page * 10` rows, so later pages extend the list rather than replace it. The page is capped at the tab's page count (minimum 1). `filteredEnd` is the number of visible rows.
+- `pagination` has `currentPage`, `pageCount`, `firstNewRowIndex` (1-based index of the first row in the latest batch), `firstRowAnchorId` (`<tab>-first-batch` on page 1, otherwise `<tab>-next-batch`), `nextHref` (empty on the last page) and `showLessHref` (empty on page 1). Both links keep the current filters and tab. `nextHref` sets `page` to the next page and ends with `#<tab>-next-batch`. `showLessHref` sets `page=1` and ends with `#<tab>-first-batch`. The template renders them as "Show more" and "Show less" under the table, and puts the anchor id on the first row of the latest batch.
+- Rows get a `groupHeading` when the group changes between adjacent rows. It is only set when sorting by `estimated-arrival` (long arrival date), `importer` (importer name) or `status` (status label); sorting by `reference` has no headings.
 
 ## Seed data
 
@@ -81,15 +84,24 @@ The combined export is ordered as follows:
 | `completed-today`     | Completed today     | completed | Status `COMPLETED` and completed today              |
 | `mismatches-flagged`  | Mismatches flagged  | none      | Risk flag `COMMODITY_MISMATCH` or `WEIGHT_MISMATCH` |
 
-- Selected quick filters are combined with AND.
-- Each summary card links to the dashboard with its key toggled. The `awaiting-inspection` and `mismatches-flagged` cards have the `action` modifier.
-- The `mismatches-flagged` card also has `tabVariants` with a count and link for each tab.
-- Active filter chips are built per tab and each chip's link removes that one filter.
+- Selected quick filters are combined with AND. A quick filter that has a status (`awaiting-inspection`, `completed-today`) is dropped when the `filter-status` value is set to a different status.
+- The `in-progress` group uses the status filter form field instead of a quick filter (`useFormStatus`): its card is active when `filter-status` is `IN_PROGRESS`, and its link sets or removes `filter-status`. A legacy `quick-filter=in-progress` is converted to that status when `filter-status` is absent and is not kept as a quick filter.
+- Each other summary card links to the dashboard with its key toggled. The `awaiting-inspection` and `mismatches-flagged` cards have the `action` modifier.
+- The `mismatches-flagged` card also has `tabVariants` with a count and link for each tab; client JavaScript swaps the card's count and link when the tab changes.
+- An active card links to the same view with its filter removed and shows "Remove filter" instead of "Apply filter".
+- Active filter chips are built per tab and each chip's link removes that one filter. Quick filter chips are labelled "View: <label>".
+- The status filter options exclude `COMPLETED`.
+
+## Links and anchors
+
+Dashboard links (cards and chips) always include `tab` and end with a fragment. Inactive cards use `#<tab>-results`, so the page focuses the results heading; active cards and chips use `#<tab>`. The search form submits to `/inspections#active-results`, and each tab's sort form submits to `/inspections#<tab>` using its "Apply sort" button. "Show more" and "Show less" links use the `#<tab>-next-batch` and `#<tab>-first-batch` fragments described in [Data and tabs](#data-and-tabs).
 
 ## Row display
 
 `mapConsignmentForView` produces each row, including a `detailPath` of `/inspection/<reference>`, short-date and weight (`kg`) formatting, a status label and tag class, risk flag labels, a documents-provided summary and a commodity and species summary grouped by commodity code.
 
-The mock API also passes through `importerEori`, `port`, `containerNumber`, `vesselName`, `imoNumber`, `warningText`, `riskNotes` and `recentChanges` from the seed.
+Each consignment summary has `commoditySpecies` (`commodityCode`, `species`, `weight` items). It uses the seed's `commoditySpecies` when present, otherwise a single item built from the seed's first commodity code, species and declared weight. `commodityCodes` is the de-duplicated list of codes.
+
+The row's `commoditySpeciesSummary` has `speciesCount`, `commodityCount`, `totalWeightDisplay`, `initialGroup` (the first commodity code group) and `remainingGroups`. The dashboard template renders a Goods table (code, species, weight) with the initial group, and a summary ("N commodity codes", "N species", "Total weight: ...") under the "Goods" label when there is more than one code or species. The commodity code cell spans the rows for its species. Remaining groups sit in a separate table body that is hidden by client JavaScript behind a "Show more" / "Show less" toggle button (see [Client assets](client-assets.md#javascript)). Without a summary the template shows separate Species, Commodity code and Weight rows.
 
 Arrival timing text is `Arrival today`, `Arrival in N day(s)` or `Overdue by N day(s)`. The tag is red below 3 days, yellow up to 8 days and green beyond that.

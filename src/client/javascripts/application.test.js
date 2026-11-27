@@ -16,52 +16,68 @@ vi.mock('./cookies.js', () => ({
   }
 }))
 
-const initializeApplication = async (
-  controls = [],
-  goodsToggles = [],
-  actionRadios = [],
-  decisionConfirmations = []
-) => {
-  vi.stubGlobal('document', {
-    querySelectorAll: vi.fn((selector) =>
-      selector === '[data-goods-toggle]'
-        ? goodsToggles
-        : selector === '[data-decision-confirmation]'
-          ? decisionConfirmations
-          : selector === '.inspection-action-options'
-            ? actionRadios
-            : controls
-    ),
-    createElement: vi.fn((tagName) => {
-      const attributes = new Map()
-      const listeners = new Map()
-      return {
-        tagName,
-        attributes,
-        children: [],
-        hidden: false,
-        className: '',
-        textContent: '',
-        append: vi.fn(function (...children) {
-          this.children.push(...children)
-        }),
-        addEventListener: vi.fn((event, listener) =>
-          listeners.set(event, listener)
-        ),
-        getAttribute: vi.fn((name) => attributes.get(name)),
-        setAttribute: vi.fn((name, value) => attributes.set(name, value)),
-        focus: vi.fn(),
-        querySelector: vi.fn(() => null),
-        dispatchEvent: vi.fn(),
-        listeners
-      }
+const createElement = (tagName) => {
+  const attributes = new Map()
+  const listeners = new Map()
+  return {
+    tagName,
+    attributes,
+    children: [],
+    hidden: false,
+    className: '',
+    textContent: '',
+    append: vi.fn(function (...children) {
+      this.children.push(...children)
     }),
-    getElementById: vi.fn(
-      (id) =>
-        goodsToggles.find(
-          (toggle) => toggle.getAttribute('aria-controls') === id
-        )?.controlledContent
-    )
+    addEventListener: vi.fn((event, listener) =>
+      listeners.set(event, listener)
+    ),
+    getAttribute: vi.fn((name) => attributes.get(name)),
+    setAttribute: vi.fn((name, value) => attributes.set(name, value)),
+    focus: vi.fn(),
+    querySelector: vi.fn(() => null),
+    dispatchEvent: vi.fn(),
+    listeners
+  }
+}
+
+const initializeApplication = async (browserElements = {}) => {
+  const {
+    sortControls = [],
+    goodsToggles = [],
+    goodsRows = {},
+    actionRadios = [],
+    decisionConfirmations = [],
+    summaryCards = [],
+    tabs = [],
+    selectedTab = null,
+    hash = '#active',
+    resultsCounts = {}
+  } = browserElements
+  const windowListeners = new Map()
+
+  vi.stubGlobal('window', {
+    addEventListener: vi.fn((event, listener) =>
+      windowListeners.set(event, listener)
+    ),
+    location: { hash },
+    history: { replaceState: vi.fn(), state: null }
+  })
+  vi.stubGlobal('document', {
+    createElement: vi.fn(createElement),
+    getElementById: vi.fn((id) => goodsRows[id] ?? resultsCounts[id]),
+    querySelector: vi.fn(() => selectedTab),
+    querySelectorAll: vi.fn((selector) => {
+      const elements = {
+        '[data-goods-toggle]': goodsToggles,
+        '[data-inspection-sort-control]': sortControls,
+        '.inspection-action-options': actionRadios,
+        '[data-decision-confirmation]': decisionConfirmations,
+        '.govuk-tabs__tab': tabs,
+        '.inspection-dashboard__summary-card': summaryCards
+      }
+      return elements[selector] || []
+    })
   })
 
   vi.resetModules()
@@ -72,7 +88,8 @@ const initializeApplication = async (
 
   return {
     cookies,
-    govukFrontend
+    govukFrontend,
+    windowListeners
   }
 }
 
@@ -88,7 +105,9 @@ describe('application browser initialization', () => {
       addEventListener: vi.fn()
     }
 
-    const { cookies, govukFrontend } = await initializeApplication([control])
+    const { cookies, govukFrontend } = await initializeApplication({
+      sortControls: [control]
+    })
 
     expect(cookies.default.init).toHaveBeenCalledOnce()
     expect(control.addEventListener).not.toHaveBeenCalled()
@@ -102,6 +121,37 @@ describe('application browser initialization', () => {
       'SkipLink',
       'Tabs'
     ])
+  })
+
+  test.each(['active', 'completed'])(
+    'focuses the %s results count after Apply',
+    async (tab) => {
+      const count = {
+        dataset: { resultsTab: tab },
+        focus: vi.fn(),
+        scrollIntoView: vi.fn()
+      }
+      const id = `${tab}-results`
+      const { windowListeners } = await initializeApplication({
+        hash: `#${id}`,
+        resultsCounts: { [id]: count }
+      })
+
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        `#${tab}`
+      )
+      windowListeners.get('pageshow')()
+      expect(count.focus).toHaveBeenCalledOnce()
+      expect(count.scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+    }
+  )
+
+  test('does not move focus on an ordinary tab visit', async () => {
+    const { windowListeners } = await initializeApplication()
+    expect(windowListeners.has('pageshow')).toBe(false)
+    expect(window.history.replaceState).not.toHaveBeenCalled()
   })
 
   test('shows decision confirmation only when issue decision is selected', async () => {
@@ -126,7 +176,7 @@ describe('application browser initialization', () => {
       }))
     }
 
-    await initializeApplication([], [], [], [confirmation])
+    await initializeApplication({ decisionConfirmations: [confirmation] })
 
     expect(confirmation.hidden).toBe(true)
     decisionRadio.checked = true
@@ -139,33 +189,39 @@ describe('application browser initialization', () => {
     expect(confirmation.hidden).toBe(true)
   })
 
-  test('toggles goods details and updates the accessible button state', async () => {
-    const controlledContent = { hidden: true }
+  test('progressively enhances goods disclosure and keeps its state accessible', async () => {
     const attributes = new Map([
-      ['aria-controls', 'commodity-codes-extra-1'],
+      ['aria-controls', 'goods-extra-1'],
       ['aria-expanded', 'false']
     ])
-    const toggle = {
-      controlledContent,
+    const button = {
       addEventListener: vi.fn((event, listener) => {
-        toggle.clickListener = listener
+        button.clickListener = listener
       }),
-      getAttribute: vi.fn((name) => attributes.get(name)),
+      getAttribute: vi.fn((name) => attributes.get(name) || null),
+      hidden: true,
       setAttribute: vi.fn((name, value) => attributes.set(name, value)),
       textContent: 'Show more'
     }
+    const goodsRows = { hidden: false }
 
-    await initializeApplication([], [toggle])
+    await initializeApplication({
+      goodsToggles: [button],
+      goodsRows: { 'goods-extra-1': goodsRows }
+    })
 
-    toggle.clickListener()
-    expect(controlledContent.hidden).toBe(false)
-    expect(attributes.get('aria-expanded')).toBe('true')
-    expect(toggle.textContent).toBe('Show less')
+    expect(goodsRows.hidden).toBe(true)
+    expect(button.hidden).toBe(false)
 
-    toggle.clickListener()
-    expect(controlledContent.hidden).toBe(true)
-    expect(attributes.get('aria-expanded')).toBe('false')
-    expect(toggle.textContent).toBe('Show more')
+    button.clickListener()
+    expect(goodsRows.hidden).toBe(false)
+    expect(button.getAttribute('aria-expanded')).toBe('true')
+    expect(button.textContent).toBe('Show less')
+
+    button.clickListener()
+    expect(goodsRows.hidden).toBe(true)
+    expect(button.getAttribute('aria-expanded')).toBe('false')
+    expect(button.textContent).toBe('Show more')
   })
 
   test('shows three action radios with a divider and expands the rest', async () => {
@@ -189,7 +245,7 @@ describe('application browser initialization', () => {
       append: vi.fn((...elements) => radios.children.push(...elements))
     }
 
-    await initializeApplication([], [], [radios])
+    await initializeApplication({ actionRadios: [radios] })
 
     const more = radios.children.at(-2)
     const extra = radios.children.at(-1)
@@ -211,5 +267,68 @@ describe('application browser initialization', () => {
     less.listeners.get('click')()
     expect(extra.hidden).toBe(true)
     expect(more.hidden).toBe(false)
+  })
+
+  test('updates mismatch summary count and destination when the selected tab changes', async () => {
+    const makeVariant = (tab, count, href) => ({
+      dataset: {
+        count: String(count),
+        href
+      },
+      tab
+    })
+    const variants = {
+      active: makeVariant('active', 3, '/inspections?tab=active#active'),
+      completed: makeVariant(
+        'completed',
+        7,
+        '/inspections?tab=completed#completed'
+      )
+    }
+    const count = { textContent: '3' }
+    const link = { setAttribute: vi.fn() }
+    const card = {
+      querySelector: vi.fn((selector) => {
+        if (selector === '[data-summary-count]') {
+          return count
+        }
+        if (selector === '[data-summary-link]') {
+          return link
+        }
+        const [, tab] = selector.match(/data-summary-tab="([^"]+)"/) || []
+        return variants[tab]
+      })
+    }
+    const activeTab = {
+      addEventListener: vi.fn(),
+      getAttribute: vi.fn(() => '#active')
+    }
+    const completedTab = {
+      addEventListener: vi.fn((event, listener) => {
+        completedTab.clickListener = listener
+      }),
+      getAttribute: vi.fn(() => '#completed')
+    }
+    const { windowListeners } = await initializeApplication({
+      summaryCards: [card],
+      tabs: [activeTab, completedTab],
+      selectedTab: activeTab
+    })
+
+    expect(count.textContent).toBe('3')
+    completedTab.clickListener()
+    expect(count.textContent).toBe('7')
+    expect(link.setAttribute).toHaveBeenLastCalledWith(
+      'href',
+      '/inspections?tab=completed#completed'
+    )
+
+    window.location.hash = '#active'
+    windowListeners.get('hashchange')()
+    expect(count.textContent).toBe('3')
+    expect(link.setAttribute).toHaveBeenLastCalledWith(
+      'href',
+      '/inspections?tab=active#active'
+    )
   })
 })

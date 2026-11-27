@@ -344,6 +344,10 @@ test.each([
     'chore/FISB-1234-update-dependencies',
     'chore-fisb-1234-update-dependencies'
   ],
+  [
+    'feature/fisb-155-something-something-stuff-something',
+    'feature-fisb-155-something-something-stuff-something'
+  ],
   ['feature/FISB-1-a', 'feature-fisb-1-a'],
   ['feature/FISB-1234-123', 'feature-fisb-1234-123'],
   ['bugfix/FISB-1234567-fix-2-errors', 'bugfix-fisb-1234567-fix-2-errors']
@@ -480,7 +484,6 @@ test.each([
   'bugfix/FISB-1234',
   'ci/FISB-1234',
   'chore/FISB-1234',
-  'chore/fisb-1234-update-dependencies',
   'chore/FISB-1234-Update-dependencies',
   'chore/FISB-1234-update--dependencies',
   'hotfix/FISB-1234-fix-upload',

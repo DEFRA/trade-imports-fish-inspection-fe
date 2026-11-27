@@ -51,7 +51,7 @@
     "@hapi/vision": "7.0.3",
     "@hapi/yar": "11.0.3",
     "@ministryofjustice/frontend": "11.1.0",
-    "blankie": "4.1.1",
+    "blankie": "5.0.0",
     "convict": "6.2.5",
     "convict-format-with-validator": "6.2.0",
     "cssnano": "9.3.2",
@@ -84,5 +84,13 @@
     "vite": "8.3.3",
     "vitest": "4.1.12",
     "vitest-fetch-mock": "0.4.5"
+  },
+  "overrides": {
+    "blankie": {
+      "@hapi/joi": "npm:joi@17.13.9"
+    },
+    "hapi-pulse": {
+      "joi": "17.13.9"
+    }
   }
 }

@@ -6,23 +6,44 @@ import { config } from '#/config/config.js'
 import { statusCodes } from '#/server/common/constants/status-codes.js'
 
 const mockAuthPath = '/mock-auth'
-const mockAuthEnabled = !config.get('isProduction')
+export const mockAuthEnabled = config.get('authMode') === 'mock'
 
-/**
- * A GDS styled example home page controller.
- * Provided as an example, remove or modify as required.
- */
-export const homeController = {
-  handler(request, h) {
+function forbidden(
+  h,
+  message = 'You do not have permission to access this page'
+) {
+  return h
+    .view('error/index', {
+      pageTitle: 'Forbidden',
+      heading: statusCodes.forbidden,
+      message
+    })
+    .code(statusCodes.forbidden)
+}
+
+function hasPhaAccess(user) {
+  return user.roles?.includes('PHA') && user.portId
+}
+
+function requirePhaUser(handler) {
+  return (request, h) => {
+    if (!mockAuthEnabled) {
+      return forbidden(h, 'Dashboard sign-in is not available on this service.')
+    }
+
     const user = request.yar.get('mock-user')
     if (!user) {
       return h.redirect(mockAuthPath)
     }
-
-    if (!user.roles?.includes('PHA') || !user.portId) {
-      return h.redirect(mockAuthPath)
+    if (!hasPhaAccess(user)) {
+      return forbidden(h)
     }
+    return handler(request, h, user)
+  }
+}
 
+export const homeController = {
+  handler: requirePhaUser((request, h, user) => {
     return h.view('inspection/dashboard/index', {
       pageTitle: 'Dashboard',
       basePath: '',
@@ -31,7 +52,7 @@ export const homeController = {
         query: request.query
       })
     })
-  }
+  })
 }
 
 export const consignmentController = {
@@ -59,23 +80,18 @@ export const consignmentController = {
 }
 
 export const accountController = {
-  handler(request, h) {
-    const user = request.yar.get('mock-user')
-    if (!user) {
-      return h.redirect(mockAuthPath)
-    }
-
+  handler: requirePhaUser((_request, h, user) => {
     return h.view('inspection/account', {
       pageTitle: 'Account information',
       user
     })
-  }
+  })
 }
 
 export const signOutController = {
   handler(request, h) {
     request.yar.clear('mock-user')
-    return h.redirect(mockAuthPath)
+    return h.redirect(mockAuthEnabled ? mockAuthPath : '/inspections')
   }
 }
 
@@ -98,6 +114,7 @@ export const mockAuthController = {
         return h.response().code(statusCodes.notFound)
       }
 
+      request.yar.clear('mock-user')
       const user = findMockUser(request.payload?.mockUser)
       if (!user) {
         return h
@@ -105,14 +122,8 @@ export const mockAuthController = {
           .code(statusCodes.badRequest)
       }
 
-      if (!user.roles?.includes('PHA')) {
-        return h
-          .view('error/index', {
-            pageTitle: 'Forbidden',
-            heading: statusCodes.forbidden,
-            message: 'You do not have permission to access this page'
-          })
-          .code(statusCodes.forbidden)
+      if (!hasPhaAccess(user)) {
+        return forbidden(h)
       }
 
       request.yar.set('mock-user', user)

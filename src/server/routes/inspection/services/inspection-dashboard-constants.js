@@ -56,20 +56,21 @@ const QUICK_FILTER_GROUPS = [
     key: 'awaiting-inspection',
     label: 'Awaiting inspection',
     tab: ACTIVE_TAB,
-    matches: (consignment) => consignment.status === 'REQUIRES_DOCUMENT_CHECK'
+    status: 'REQUIRES_DOCUMENT_CHECK'
   },
   {
     key: 'in-progress',
     label: 'In progress',
     tab: ACTIVE_TAB,
-    matches: (consignment) => consignment.status === 'IN_PROGRESS'
+    status: 'IN_PROGRESS',
+    useFormStatus: true
   },
   {
     key: 'completed-today',
     label: 'Completed today',
     tab: COMPLETED_TAB,
-    matches: (consignment) =>
-      consignment.status === 'COMPLETED' && consignment.isCompletedToday
+    status: 'COMPLETED',
+    matches: (consignment) => consignment.isCompletedToday
   },
   {
     key: MISMATCHES_FLAGGED_FILTER,
@@ -77,6 +78,10 @@ const QUICK_FILTER_GROUPS = [
     matches: hasMismatch
   }
 ]
+
+const matchesQuickFilterGroup = (group, consignment) =>
+  (!group.status || group.status === consignment.status) &&
+  (!group.matches || group.matches(consignment))
 
 const SORT_OPTIONS = [
   { value: DEFAULT_SORT_BY, text: 'Estimated Arrival' },
@@ -101,6 +106,7 @@ export {
   GOVUK_TAG_RED,
   GOVUK_TAG_YELLOW,
   hasEvidenceIssues,
+  matchesQuickFilterGroup,
   MISMATCHES_FLAGGED_FILTER,
   QUICK_FILTER_GROUPS,
   RISK_FLAG_LABELS,

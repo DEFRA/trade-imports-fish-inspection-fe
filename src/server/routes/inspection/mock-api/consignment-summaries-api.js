@@ -59,7 +59,9 @@ const statusCodeSet = new Set(STATUS_CODES)
 const riskFlagCodeSet = new Set(RISK_FLAG_CODES)
 
 const toUtcDate = (date) =>
-  new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  )
 
 const addDays = (date, dayOffset) => {
   const nextDate = new Date(date)

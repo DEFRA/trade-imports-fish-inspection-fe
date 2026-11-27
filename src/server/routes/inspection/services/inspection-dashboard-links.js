@@ -7,7 +7,8 @@ import {
   MISMATCHES_FLAGGED_FILTER,
   QUICK_FILTER_GROUPS,
   RISK_FLAG_LABELS,
-  STATUS_LABELS
+  STATUS_LABELS,
+  matchesQuickFilterGroup
 } from './inspection-dashboard-constants.js'
 
 const appendQueryValue = (query, key, value) => {
@@ -21,31 +22,8 @@ const appendQueryValue = (query, key, value) => {
   }
 }
 
-const buildDashboardHref = (
-  filters,
-  basePath,
-  tab,
-  overrides = {},
-  fragment = tab
-) => {
+const buildDashboardHref = (basePath, tab, values, fragment = tab) => {
   const query = new URLSearchParams({ tab })
-  const values = {
-    'quick-filter': filters.quickFilters,
-    search: filters.search,
-    'filter-importer':
-      filters.importer === ALL_FILTER_VALUE ? '' : filters.importer,
-    'filter-status': filters.status === ALL_FILTER_VALUE ? '' : filters.status,
-    'filter-origin': filters.origin === ALL_FILTER_VALUE ? '' : filters.origin,
-    'filter-risk-indicator':
-      filters.riskIndicator === ALL_FILTER_VALUE ? '' : filters.riskIndicator,
-    'filter-arrival-from': filters.arrivalFrom,
-    'filter-arrival-to': filters.arrivalTo,
-    'sort-by': filters.sortBy === DEFAULT_SORT_BY ? '' : filters.sortBy,
-    'sort-order':
-      filters.sortOrder === DEFAULT_SORT_ORDER ? '' : filters.sortOrder,
-    ...overrides
-  }
-
   Object.entries(values).forEach(([key, value]) => {
     appendQueryValue(query, key, value)
   })
@@ -53,35 +31,68 @@ const buildDashboardHref = (
   return `${basePath}/inspections?${query.toString()}#${fragment}`
 }
 
+const getFilterQuery = (filters) => ({
+  'quick-filter': filters.quickFilters,
+  search: filters.search,
+  'filter-importer':
+    filters.importer === ALL_FILTER_VALUE ? '' : filters.importer,
+  'filter-status': filters.status === ALL_FILTER_VALUE ? '' : filters.status,
+  'filter-origin': filters.origin === ALL_FILTER_VALUE ? '' : filters.origin,
+  'filter-risk-indicator':
+    filters.riskIndicator === ALL_FILTER_VALUE ? '' : filters.riskIndicator,
+  'filter-arrival-from': filters.arrivalFrom,
+  'filter-arrival-to': filters.arrivalTo,
+  'sort-by': filters.sortBy === DEFAULT_SORT_BY ? '' : filters.sortBy,
+  'sort-order':
+    filters.sortOrder === DEFAULT_SORT_ORDER ? '' : filters.sortOrder
+})
+
 const getSummaryCount = (consignments, group, tab) =>
   consignments
     .filter(
       (consignment) =>
         (consignment.status === 'COMPLETED') === (tab === COMPLETED_TAB)
     )
-    .filter(group.matches).length
+    .filter((consignment) => matchesQuickFilterGroup(group, consignment)).length
 
-const buildTabVariants = (
-  consignments,
-  filters,
-  basePath,
-  group,
-  quickFilters
-) =>
+const buildTabVariants = (consignments, group, hrefForTab) =>
   [ACTIVE_TAB, COMPLETED_TAB].map((tab) => ({
     tab,
     count: getSummaryCount(consignments, group, tab),
-    href: buildDashboardHref(filters, basePath, tab, {
-      'quick-filter': quickFilters
-    })
+    href: hrefForTab(tab)
   }))
 
+const getCardQuery = (filters, group, active) => {
+  if (!active) {
+    return group.useFormStatus
+      ? { 'filter-status': group.status }
+      : { 'quick-filter': group.key }
+  }
+
+  const query = getFilterQuery(filters)
+  if (group.useFormStatus) {
+    delete query['filter-status']
+  } else {
+    query['quick-filter'] = filters.quickFilters.filter(
+      (key) => key !== group.key
+    )
+  }
+  return query
+}
+
 const buildSummaryCard = (consignments, filters, basePath, group) => {
-  const active = filters.quickFilters.includes(group.key)
+  const active = group.useFormStatus
+    ? filters.status === group.status
+    : filters.quickFilters.includes(group.key)
   const tab = active ? filters.tab : group.tab || filters.tab
-  const selectedQuickFilters = active
-    ? filters.quickFilters.filter((key) => key !== group.key)
-    : [...filters.quickFilters, group.key]
+  const query = getCardQuery(filters, group, active)
+  const hrefForTab = (targetTab) =>
+    buildDashboardHref(
+      basePath,
+      targetTab,
+      query,
+      active ? targetTab : `${targetTab}-results`
+    )
 
   return {
     key: group.key,
@@ -95,17 +106,9 @@ const buildSummaryCard = (consignments, filters, basePath, group) => {
     active,
     tabVariants:
       group.key === MISMATCHES_FLAGGED_FILTER
-        ? buildTabVariants(
-            consignments,
-            filters,
-            basePath,
-            group,
-            selectedQuickFilters
-          )
+        ? buildTabVariants(consignments, group, hrefForTab)
         : [],
-    href: buildDashboardHref(filters, basePath, tab, {
-      'quick-filter': selectedQuickFilters
-    })
+    href: hrefForTab(tab)
   }
 }
 
@@ -116,10 +119,11 @@ const getSummaryCards = (consignments, filters, basePath) =>
 
 const getActiveFilterChips = (filters, basePath, tab) => {
   const chips = []
+  const query = getFilterQuery(filters)
   const addChip = (key, label, resetValue = '') => {
     chips.push({
       label,
-      href: buildDashboardHref(filters, basePath, tab, { [key]: resetValue })
+      href: buildDashboardHref(basePath, tab, { ...query, [key]: resetValue })
     })
   }
 
@@ -179,4 +183,9 @@ const getActiveFilterChips = (filters, basePath, tab) => {
   return chips
 }
 
-export { buildDashboardHref, getActiveFilterChips, getSummaryCards }
+export {
+  buildDashboardHref,
+  getActiveFilterChips,
+  getFilterQuery,
+  getSummaryCards
+}

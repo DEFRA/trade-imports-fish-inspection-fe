@@ -1,7 +1,8 @@
 {
   "watch": ["./src"],
   "env": {
-    "NODE_ENV": "development"
+    "NODE_ENV": "development",
+    "AUTH_MODE": "mock"
   },
   "ignore": ["**/*.test.*", "./src/server/common/test-helpers", "./src/client"],
   "ext": "cjs,js,json",

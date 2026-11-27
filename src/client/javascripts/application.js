@@ -11,15 +11,21 @@ import cookies from './cookies.js'
 
 cookies.init()
 
-document.querySelectorAll('[data-goods-toggle]').forEach((toggle) => {
-  toggle.addEventListener('click', () => {
-    const expanded = toggle.getAttribute('aria-expanded') === 'true'
-    const controlledContent = document.getElementById(
-      toggle.getAttribute('aria-controls')
-    )
-    controlledContent.hidden = expanded
-    toggle.setAttribute('aria-expanded', String(!expanded))
-    toggle.textContent = expanded ? 'Show more' : 'Show less'
+document.querySelectorAll('[data-goods-toggle]').forEach((button) => {
+  const goodsRows = document.getElementById(
+    button.getAttribute('aria-controls')
+  )
+  if (!goodsRows) {
+    return
+  }
+
+  goodsRows.hidden = true
+  button.hidden = false
+  button.addEventListener('click', () => {
+    const isExpanded = button.getAttribute('aria-expanded') === 'true'
+    goodsRows.hidden = isExpanded
+    button.setAttribute('aria-expanded', String(!isExpanded))
+    button.textContent = isExpanded ? 'Show more' : 'Show less'
   })
 })
 
@@ -104,4 +110,59 @@ createAll(Checkboxes)
 createAll(ErrorSummary)
 createAll(Radios)
 createAll(SkipLink)
+
+const resultsCount = document.getElementById(window.location.hash.slice(1))
+const resultsTab = resultsCount?.dataset.resultsTab
+if (resultsTab) {
+  // GOV.UK Tabs selects a panel by its hash. Consume the Apply target before setup.
+  window.history.replaceState(window.history.state, '', `#${resultsTab}`)
+}
 createAll(Tabs)
+
+if (resultsTab) {
+  window.addEventListener(
+    'pageshow',
+    () => {
+      resultsCount.focus({ preventScroll: true })
+      resultsCount.scrollIntoView({ block: 'start' })
+    },
+    { once: true }
+  )
+}
+
+const updateSummaryCards = (tab) => {
+  if (tab !== 'active' && tab !== 'completed') {
+    return
+  }
+
+  document
+    .querySelectorAll('.inspection-dashboard__summary-card')
+    .forEach((card) => {
+      const variant = card.querySelector(`[data-summary-tab="${tab}"]`)
+      const count = card.querySelector('[data-summary-count]')
+      const link = card.querySelector('[data-summary-link]')
+      if (!variant || !count || !link) {
+        return
+      }
+
+      count.textContent = variant.dataset.count
+      link.setAttribute('href', variant.dataset.href)
+    })
+}
+
+document.querySelectorAll('.govuk-tabs__tab').forEach((tabLink) => {
+  tabLink.addEventListener('click', () => {
+    updateSummaryCards(tabLink.getAttribute('href').slice(1))
+  })
+})
+
+const selectedTab = document.querySelector(
+  '.govuk-tabs__list-item--selected .govuk-tabs__tab'
+)
+if (selectedTab) {
+  updateSummaryCards(selectedTab.getAttribute('href').slice(1))
+}
+
+window.addEventListener('hashchange', () =>
+  updateSummaryCards(window.location.hash.slice(1))
+)

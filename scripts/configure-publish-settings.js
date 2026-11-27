@@ -4,7 +4,7 @@ import { appendFileSync } from 'node:fs'
 const MAX_DOCKER_TAG_LENGTH = 128
 const STABLE_RELEASE_TAG_PATTERN = /^v?\d+\.\d+\.\d+$/
 const PRERELEASE_BRANCH_PATTERN =
-  /^(feature|bugfix|ci|chore)\/(FISB-\d+)-[a-z0-9]+(-[a-z0-9]+)*$/
+  /^(feature|bugfix|ci|chore)\/([Ff][Ii][Ss][Bb]-\d+)-[a-z0-9]+(-[a-z0-9]+)*$/
 const POSITIVE_INTEGER_PATTERN = /^[1-9]\d*$/
 const GIT_EXECUTABLE =
   process.env.GIT_EXECUTABLE ||

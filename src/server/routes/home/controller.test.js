@@ -2,6 +2,15 @@ import { createServer } from '#/server/server.js'
 import { homeController } from './controller.js'
 import * as cheerio from 'cheerio'
 
+// CDP Testing runs a production build without a service-specific auth override.
+vi.hoisted(() => {
+  vi.stubEnv('NODE_ENV', 'production')
+  vi.stubEnv('ENVIRONMENT', 'test')
+  vi.stubEnv('AUTH_MODE', undefined)
+  vi.stubEnv('SESSION_CACHE_ENGINE', 'memory')
+  vi.stubEnv('LOG_ENABLED', 'false')
+})
+
 describe('#homeController', () => {
   let server
 
@@ -59,6 +68,7 @@ describe('#homeController', () => {
 
   afterAll(async () => {
     await server.stop({ timeout: 0 })
+    vi.unstubAllEnvs()
   })
 
   test('redirects the root route to the dashboard route', async () => {
@@ -103,8 +113,23 @@ describe('#homeController', () => {
     expect(response.headers.location).toBe('/mock-auth')
   })
 
-  test('shows a 403 Forbidden page when a non-PHA user signs in', async () => {
-    const { response: signInResponse, cookie } = await signInAs('non-pha-test')
+  test('offers the two port users and importer on CDP Testing', async () => {
+    const picker = await server.inject('/mock-auth')
+    expect(picker.statusCode).toBe(200)
+    const $ = cheerio.load(picker.payload)
+    const choices = $('input[name="mockUser"]')
+      .map((_, input) => $(input).val())
+      .get()
+    expect(choices.sort()).toEqual([
+      'dover-test',
+      'felixstowe-test',
+      'non-pha-test'
+    ])
+  })
+
+  test('denies dashboard access to non-pha-test', async () => {
+    const mockUser = 'non-pha-test'
+    const { response: signInResponse, cookie } = await signInAs(mockUser)
     const response = await server.inject({
       method: 'GET',
       url: '/inspections',
@@ -141,8 +166,8 @@ describe('#homeController', () => {
     expect(response.headers.location).toBe('/mock-auth')
   })
 
-  test('redirects a PHA user without a port to sign-in', () => {
-    const redirect = vi.fn()
+  test('denies a PHA session without an assigned port', () => {
+    const code = vi.fn()
 
     homeController.handler(
       {
@@ -150,10 +175,35 @@ describe('#homeController', () => {
           get: () => ({ roles: ['PHA'] })
         }
       },
-      { redirect }
+      { view: () => ({ code }) }
     )
 
-    expect(redirect).toHaveBeenCalledWith('/mock-auth')
+    expect(code).toHaveBeenCalledWith(403)
+  })
+
+  test('selecting a non-PHA user removes previous PHA access', async () => {
+    const { cookie, response: signedIn } = await signInAs('dover-test')
+    const picker = await server.inject({
+      url: '/mock-auth',
+      headers: { cookie }
+    })
+    const $ = cheerio.load(picker.payload)
+    const denied = await server.inject({
+      method: 'POST',
+      url: '/mock-auth',
+      headers: { cookie },
+      payload: {
+        mockUser: 'non-pha-test',
+        crumb: $('input[name="crumb"]').val()
+      }
+    })
+    expect(denied.statusCode).toBe(403)
+    const dashboard = await server.inject({
+      url: '/inspections',
+      headers: { cookie: cookiesFor(signedIn, denied) }
+    })
+    expect(dashboard.statusCode).toBe(302)
+    expect(dashboard.headers.location).toBe('/mock-auth')
   })
 
   test('rejects an unknown mock user during sign-in', async () => {
@@ -218,6 +268,7 @@ describe('#homeController', () => {
     expect(response.payload).not.toContain('GB-IUU-2026-21001')
     expect(response.payload).not.toContain('GB-IUU-2026-21003')
     expect($('#active .inspection-dashboard__reference')).toHaveLength(10)
+    expect($('a.inspection-dashboard__reference')).toHaveLength(0)
     expect($('nav a[href="/about"]')).toHaveLength(0)
     expect($('nav a[href="/"]')).toHaveLength(0)
   })
@@ -242,6 +293,85 @@ describe('#homeController', () => {
     expect(sortForm.find('input[name="filter-status"]').attr('value')).toBe(
       'SUBMITTED'
     )
+  })
+
+  test('both filter panels search and clear on Active, but sort on their own tab', async () => {
+    const response = await getDashboardAs(
+      'felixstowe-test',
+      '/inspections?tab=completed&quick-filter=completed-today'
+    )
+    const $ = cheerio.load(response.payload)
+    for (const tab of ['active', 'completed']) {
+      const form = $(
+        `#${tab} form[aria-label="Search and filter consignments"]`
+      )
+      expect(form.attr('action')).toBe('/inspections#active-results')
+      expect(form.find('[name="tab"]').val()).toBe('active')
+      expect(form.find('[value="completed-today"]')).toHaveLength(0)
+      expect(form.find('option[value="COMPLETED"]')).toHaveLength(0)
+      expect(form.find('a:contains("Clear filters")').attr('href')).toBe(
+        '/inspections?tab=active#active'
+      )
+      const sort = $(`#${tab} [data-inspection-sort-form]`)
+      expect(sort.attr('action')).toBe(`/inspections#${tab}`)
+      expect(sort.find('[name="quick-filter"]').val()).toBe('completed-today')
+    }
+  })
+
+  test('keeps each results count focusable and immediately before its results table', async () => {
+    const response = await getDashboardAs(
+      'felixstowe-test',
+      '/inspections?search=GB-IUU-2026-11002'
+    )
+    const $ = cheerio.load(response.payload)
+    for (const [tab, expected] of [
+      ['active', 'Showing 1 result'],
+      ['completed', 'Showing 0 results']
+    ]) {
+      const count = $(`#${tab}-results`)
+      expect(count.text().trim()).toBe(expected)
+      expect(count.attr('tabindex')).toBe('-1')
+      expect(count.parent().next().is('table')).toBe(true)
+    }
+  })
+
+  test('the In progress card sets the editable form status without a second filter', async () => {
+    const { cookie } = await signInAs('felixstowe-test')
+    const loadDashboard = async (url) => {
+      const response = await server.inject({ url, headers: { cookie } })
+      expect(response.statusCode).toBe(200)
+      return cheerio.load(response.payload)
+    }
+    const before = await loadDashboard(
+      '/inspections?search=no-match&filter-origin=France'
+    )
+    const link = before(
+      '.inspection-dashboard__summary-card:contains("In progress") [data-summary-link]'
+    ).attr('href')
+    const $ = await loadDashboard(link.split('#')[0])
+    const form = $('#active form[aria-label="Search and filter consignments"]')
+
+    expect(form.find('[name="filter-status"]').val()).toBe('IN_PROGRESS')
+    expect(form.find('[name="search"]').val()).toBe('')
+    expect(form.find('[name="filter-origin"]').val()).toBe('__all__')
+    expect($('#active [name="quick-filter"]')).toHaveLength(0)
+    expect($('#active .inspection-dashboard__filter-chip')).toHaveLength(1)
+    expect($('#active .inspection-dashboard__filter-chip').text()).toContain(
+      'Status: In progress'
+    )
+    expect(
+      $(
+        '.inspection-dashboard__summary-card:contains("In progress") [data-summary-link]'
+      ).text()
+    ).toContain('Remove filter')
+
+    form.find('[name="filter-status"]').val('REQUIRES_DOCUMENT_CHECK')
+    const after = await loadDashboard(`/inspections?${form.serialize()}`)
+    const statuses = after('#active .inspection-dashboard__status')
+      .map((_, el) => after(el).text().trim())
+      .get()
+    expect(new Set(statuses)).toEqual(new Set(['Requires document check']))
+    expect(after('#active .inspection-dashboard__filter-chip')).toHaveLength(1)
   })
 
   test('shows more notifications without losing search, filter, or sort state', async () => {
@@ -275,6 +405,15 @@ describe('#homeController', () => {
     const nextPageHref = $secondPage('a.govuk-button--secondary').attr('href')
     expect(nextPageHref).toContain('search=GB-IUU-2026-110')
     expect(nextPageHref).toContain('page=3#active-next-batch')
+    expect($secondPage('#active-results').text()).toMatch(
+      /Showing\s+20\s+of\s+\d+\s+results/
+    )
+    const showLessHref = $secondPage('#active a:contains("Show less")').attr(
+      'href'
+    )
+    expect(showLessHref).toContain('search=GB-IUU-2026-110')
+    expect(showLessHref).toContain('page=1#active-first-batch')
+    expect($firstPage('#active a:contains("Show less")')).toHaveLength(0)
   })
 
   test('opens a scoped consignment overview from its reference', async () => {
@@ -397,6 +536,7 @@ describe('#homeController', () => {
     expect(response.payload).not.toContain('GB-IUU-2026-11002')
     expect(response.payload).not.toContain('GB-IUU-2026-21003')
     expect($('#active .inspection-dashboard__reference')).toHaveLength(10)
+    expect($('a.inspection-dashboard__reference')).toHaveLength(0)
     expect($('.govuk-tabs__list').text()).toContain('Active (38)')
     expect($('.govuk-tabs__list').text()).toContain('Completed (4)')
     expect(

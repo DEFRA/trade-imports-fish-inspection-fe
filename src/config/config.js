@@ -12,6 +12,7 @@ const oneWeekMs = 604800000
 const isProduction = process.env.NODE_ENV === 'production'
 const isTest = process.env.NODE_ENV === 'test'
 const isDevelopment = process.env.NODE_ENV === 'development'
+const mockAuthEnvironments = ['dev', 'test', 'perf-test', 'ext-test']
 
 convict.addFormats(convictFormatWithValidator)
 
@@ -71,6 +72,14 @@ export const config = convict({
     doc: 'If this application running in the test environment',
     format: Boolean,
     default: isTest
+  },
+  authMode: {
+    doc: 'Enable the fictional user picker by default in selected pre-production CDP environments',
+    format: ['disabled', 'mock'],
+    default: mockAuthEnvironments.includes(process.env.ENVIRONMENT)
+      ? 'mock'
+      : 'disabled',
+    env: 'AUTH_MODE'
   },
   log: {
     enabled: {
