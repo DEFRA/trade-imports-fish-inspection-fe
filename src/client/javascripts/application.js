@@ -122,11 +122,10 @@ const selectedTab = document.querySelector(
 const serverTab = selectedTab?.getAttribute('href').slice(1)
 
 // GOV.UK Tabs selects a panel by its hash and falls back to the first tab otherwise.
-if (resultsTab) {
-  // Apply and pagination targets map to their tab, so consume them before setup.
-  window.history.replaceState(window.history.state, '', `#${resultsTab}`)
-} else if (!hashId && serverTab) {
-  window.history.replaceState(window.history.state, '', `#${serverTab}`)
+// Apply and pagination targets map to their tab; with no fragment, use the server-selected tab.
+const initialTab = resultsTab || (!hashId && serverTab)
+if (initialTab) {
+  window.history.replaceState(window.history.state, '', `#${initialTab}`)
 }
 createAll(Tabs)
 

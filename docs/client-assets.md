@@ -35,7 +35,7 @@ For each `[data-decision-confirmation]` block, the block is hidden unless the `i
 
 When the URL hash matches an element with `data-results-tab` (the dashboard's `<tab>-results` heading or the first row of the latest batch of results), the hash is replaced with the tab id before `Tabs` is initialised so that the matching tab is selected. When there is no hash, the hash is set to the tab selected by the server. On the first `pageshow` the target element is then focused and scrolled into view. See [Inspection dashboard](inspection-dashboard.md#links-and-anchors).
 
-It also updates the dashboard summary cards for the selected tab: for each `.inspection-dashboard__summary-card` it copies `data-count` and `data-href` from the matching `[data-summary-tab]` element into the card's `[data-summary-count]` and `[data-summary-link]`. This runs on load, on tab clicks and on `hashchange`. See [Inspection dashboard](inspection-dashboard.md#quick-filters-and-summary-cards).
+It also updates the dashboard summary cards for the selected tab: for each `.inspection-dashboard__summary-card` it copies `data-count` and `data-href` from the matching `[data-summary-tab]` element into the card's `[data-summary-count]` and `[data-summary-link]`. Only the `active` and `completed` tabs are handled; other tab ids are ignored. This runs on load (using the server-selected tab), on tab clicks and on `hashchange`. See [Inspection dashboard](inspection-dashboard.md#quick-filters-and-summary-cards).
 
 [cookies.js](https://github.com/DEFRA/trade-imports-fish-inspection-fe/blob/main/src/client/javascripts/cookies.js) implements consent handling. See [cookie consent](cookie-consent.md).
 
