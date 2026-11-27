@@ -125,6 +125,12 @@ describe('#homeController', () => {
       'felixstowe-test',
       'non-pha-test'
     ])
+    expect($('label[for="mock-user-felixstowe-test"]').text()).toContain(
+      'Aren Valtoris-Okafor'
+    )
+    expect($('label[for="mock-user-dover-test"]').text()).toContain(
+      'Sefa Quillan-Mirabeau'
+    )
   })
 
   test('denies dashboard access to non-pha-test', async () => {
@@ -154,7 +160,7 @@ describe('#homeController', () => {
 
     expect(response.statusCode).toBe(200)
     expect($('h1').text()).toContain('Account information')
-    expect($('.govuk-summary-list').text()).toContain('John Smith')
+    expect($('.govuk-summary-list').text()).toContain('Aren Valtoris-Okafor')
     expect($('.govuk-summary-list').text()).toContain('PHA-FELIXSTOWE')
     expect($('.govuk-summary-list').text()).toContain('FELIXSTOWE')
   })
@@ -265,7 +271,7 @@ describe('#homeController', () => {
     expect($('.govuk-inset-text [onclick]')).toHaveLength(0)
     expect($('.govuk-inset-text').text()).toContain('Inspection guidance')
     expect(response.payload).toContain(
-      'Signed in as John Smith, Port of Felixstowe Port Health Authority'
+      'Signed in as Aren Valtoris-Okafor, Port of Felixstowe Port Health Authority'
     )
     expect(response.payload).toContain('GB-IUU-2026-11002')
     expect(response.payload).not.toContain('GB-IUU-2026-21001')
@@ -569,7 +575,7 @@ describe('#homeController', () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.payload).toContain(
-      'Signed in as Jane Doe, Port of Dover Port Health Authority'
+      'Signed in as Sefa Quillan-Mirabeau, Port of Dover Port Health Authority'
     )
     expect(response.payload).toContain('GB-IUU-2026-21001')
     expect(response.payload).toContain('GB-IUU-2026-21002')

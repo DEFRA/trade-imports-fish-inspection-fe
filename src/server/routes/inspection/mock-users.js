@@ -1,7 +1,7 @@
 const mockUsers = [
   {
     id: 'felixstowe-test',
-    name: 'John Smith',
+    name: 'Aren Valtoris-Okafor',
     roles: ['PHA'],
     organisationId: 'PHA-FELIXSTOWE',
     organisationName: 'Port of Felixstowe Port Health Authority',
@@ -9,7 +9,7 @@ const mockUsers = [
   },
   {
     id: 'dover-test',
-    name: 'Jane Doe',
+    name: 'Sefa Quillan-Mirabeau',
     roles: ['PHA'],
     organisationId: 'PHA-DOVER',
     organisationName: 'Port of Dover Port Health Authority',
@@ -17,7 +17,7 @@ const mockUsers = [
   },
   {
     id: 'non-pha-test',
-    name: 'Michael Brown',
+    name: 'Rowan Teskaya',
     roles: ['IMPORTER'],
     organisationId: 'TEST-IMPORTER',
     organisationName: 'Non-Port Health Authority User'
